@@ -1,0 +1,786 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+<title>Hvem Var Det?</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Lexend:wght@400;500;700&family=Special+Elite&display=swap">
+<style>
+/* Layout: a school "case board" — top bar with clock, room scene + dialogue on the left, school map + notebook on the right; stacks on phones. */
+:root {
+  --bg: #eef3fb;
+  --paper: #ffffff;
+  --ink: #14213d;
+  --muted: #5a6788;
+  --line: #cfd9ec;
+  --marker: #ffc93c;
+  --marker-ink: #3a2a00;
+  --string: #e63946;
+  --good: #1f8a70;
+  --sel: #dfe9ff;
+  --common: #7d8aa8;
+  --rare: #2f6bff;
+  --legend: #d99a00;
+  --god: #c2187a;
+  --shadow: 0 2px 0 #14213d;
+  --f-display: "Bungee", "Arial Black", Impact, sans-serif;
+  --f-body: "Lexend", "Segoe UI", system-ui, sans-serif;
+  --f-note: "Special Elite", "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1424; --paper: #172138; --ink: #e8eef9; --muted: #9aa8c7; --line: #2a3756;
+    --marker: #ffcf4d; --marker-ink: #2b1f00; --string: #ff5d68; --good: #3cc69c; --sel: #22325a;
+    --common: #8f9bb8; --rare: #6b95ff; --legend: #f2b632; --god: #ff4fb0; --shadow: 0 2px 0 #000;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1424; --paper: #172138; --ink: #e8eef9; --muted: #9aa8c7; --line: #2a3756;
+  --marker: #ffcf4d; --marker-ink: #2b1f00; --string: #ff5d68; --good: #3cc69c; --sel: #22325a;
+  --common: #8f9bb8; --rare: #6b95ff; --legend: #f2b632; --god: #ff4fb0; --shadow: 0 2px 0 #000;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  background: var(--bg);
+  background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-attachment: fixed;
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 16px;
+  line-height: 1.5;
+}
+#app {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding-block: 20px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 18px;
+}
+h1, h2, h3 { font-family: var(--f-display); font-weight: 400; margin: 0; text-wrap: balance; line-height: 1.1; }
+h1 { font-size: clamp(2.4rem, 8vw, 4.6rem); }
+h2 { font-size: clamp(1.3rem, 3.4vw, 1.9rem); }
+h3 { font-size: 1.05rem; }
+p { margin: 0; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible { outline: 3px solid var(--rare); outline-offset: 2px; }
+.label { font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.panel {
+  background: var(--paper); border: 2px solid var(--ink); border-radius: 14px;
+  box-shadow: var(--shadow); padding: 18px; min-width: 0;
+}
+.btn {
+  border: 2px solid var(--ink); border-radius: 10px; background: var(--paper);
+  padding: 10px 16px; font-weight: 700; box-shadow: var(--shadow);
+  transition: transform .08s ease;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(1px); box-shadow: none; }
+.btn.primary { background: var(--marker); color: var(--marker-ink); }
+.btn.danger { background: var(--string); color: #fff; }
+.btn.small { padding: 6px 10px; font-size: .85rem; }
+.btn[disabled] { opacity: .45; cursor: not-allowed; transform: none; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.spread { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+
+/* top bar */
+.topbar { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.brand { font-family: var(--f-display); font-size: 1.1rem; }
+.brand span { color: var(--string); }
+.lang { display: inline-flex; border: 2px solid var(--ink); border-radius: 999px; overflow: hidden; background: var(--paper); }
+.lang button { border: 0; background: transparent; padding: 5px 12px; font-weight: 700; font-size: .85rem; }
+.lang button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.stat { display: inline-flex; align-items: center; gap: 6px; background: var(--paper); border: 2px solid var(--ink); border-radius: 999px; padding: 4px 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* home */
+.hero { display: grid; gap: 14px; padding-block: 10px; }
+.hero h1 span { color: var(--string); }
+.tag { font-family: var(--f-note); font-size: 1.15rem; color: var(--muted); }
+.modes { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.mode { text-align: left; display: grid; gap: 8px; padding: 20px; border: 2px solid var(--ink); border-radius: 14px; box-shadow: var(--shadow); background: var(--paper); }
+.mode:hover { background: var(--sel); }
+.mode .big { font-family: var(--f-display); font-size: 1.7rem; }
+.mode.hard .big { color: var(--string); }
+.mode .pts { font-family: var(--f-note); }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.how { display: grid; gap: 10px; margin: 0; padding-left: 1.2em; }
+.me { display: flex; gap: 14px; align-items: center; }
+
+/* avatars */
+.av {
+  flex: none; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 1.6rem; border: 3px solid var(--common); background: var(--bg); font-family: var(--f-display);
+}
+.av.letter { font-size: 1.35rem; color: #fff; background: #44506d; }
+.av.r-rare { border-color: var(--rare); }
+.av.r-legendary { border-color: var(--legend); }
+.av.r-god { border-color: var(--god); box-shadow: 0 0 0 3px color-mix(in srgb, var(--god) 30%, transparent); }
+.av.lg { width: 72px; height: 72px; font-size: 2.2rem; }
+
+/* game */
+.gamehead { display: grid; gap: 10px; }
+.clock { font-family: var(--f-display); font-size: 1.6rem; font-variant-numeric: tabular-nums; }
+.timebar { height: 12px; border: 2px solid var(--ink); border-radius: 999px; overflow: hidden; background: var(--paper); }
+.timebar > i { display: block; height: 100%; background: var(--good); transition: width .3s ease; }
+.timebar.low > i { background: var(--string); }
+.board { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.col { display: grid; gap: 18px; min-width: 0; }
+@media (max-width: 860px) { .board { grid-template-columns: 1fr; } }
+.roomhead { display: flex; gap: 14px; align-items: center; margin-bottom: 14px; }
+.roomicon { font-size: 2.6rem; line-height: 1; }
+.people { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+.person { border: 2px solid var(--line); border-radius: 12px; padding: 12px; display: grid; gap: 10px; align-content: start; background: var(--bg); }
+.person.active { border-color: var(--ink); }
+.person .who { display: flex; gap: 10px; align-items: center; min-width: 0; }
+.person .nm { font-weight: 700; line-height: 1.2; }
+.person .role { font-size: .78rem; color: var(--muted); }
+.tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.t { font-size: .75rem; border: 1px solid var(--line); background: var(--paper); border-radius: 999px; padding: 2px 8px; display: inline-flex; gap: 5px; align-items: center; }
+.sw { width: 10px; height: 10px; border-radius: 50%; border: 1px solid var(--ink); display: inline-block; }
+.bubble {
+  position: relative; background: var(--paper); border: 2px solid var(--ink); border-radius: 14px;
+  padding: 16px 18px; box-shadow: var(--shadow); font-family: var(--f-note); font-size: 1.12rem; display: grid; gap: 6px;
+}
+.bubble .spk { font-family: var(--f-body); font-weight: 700; font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.bubble.empty { color: var(--muted); }
+.flash { border: 2px solid var(--string); background: color-mix(in srgb, var(--string) 12%, var(--paper)); border-radius: 12px; padding: 10px 14px; font-weight: 500; }
+.flash.ok { border-color: var(--good); background: color-mix(in srgb, var(--good) 12%, var(--paper)); }
+.map { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.tile {
+  text-align: left; border: 2px solid var(--ink); border-radius: 10px; background: var(--bg);
+  padding: 8px 10px; display: grid; grid-template-columns: auto 1fr; column-gap: 8px; align-items: center; min-width: 0;
+}
+.tile:hover { background: var(--sel); }
+.tile .ic { font-size: 1.4rem; grid-row: span 2; }
+.tile .n { font-weight: 700; font-size: .88rem; line-height: 1.2; overflow-wrap: anywhere; }
+.tile .c { font-size: .72rem; color: var(--muted); }
+.tile.here { background: var(--marker); color: var(--marker-ink); cursor: default; }
+.tile.here .c { color: var(--marker-ink); }
+.tile.sniff { border-color: var(--god); border-style: dashed; }
+.notes { display: grid; gap: 8px; margin-top: 10px; font-family: var(--f-note); }
+.note { display: grid; grid-template-columns: 28px 1fr; gap: 8px; align-items: start; padding-bottom: 8px; border-bottom: 1px dashed var(--line); }
+.note b { font-family: var(--f-display); font-weight: 400; color: var(--string); }
+.note:last-child { border-bottom: 0; }
+
+/* screens */
+.center { display: grid; gap: 16px; justify-items: start; max-width: 680px; }
+.casecard { border-left: 8px solid var(--string); }
+.caseicon { font-size: 3rem; line-height: 1; }
+.stamp {
+  display: inline-block; font-family: var(--f-display); font-size: 1.4rem; padding: 6px 14px; border: 4px solid var(--good);
+  color: var(--good); border-radius: 8px; transform: rotate(-4deg);
+}
+.stamp.bad { border-color: var(--string); color: var(--string); }
+
+/* characters */
+.chars { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.char { border: 2px solid var(--line); border-radius: 12px; padding: 12px; display: grid; gap: 8px; background: var(--paper); align-content: start; }
+.char.sel { border-color: var(--ink); background: var(--sel); }
+.char.locked { opacity: .6; }
+.char.locked .av { filter: grayscale(1); }
+.rar { font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.rar.r-common, .rar.r-start { color: var(--common); }
+.rar.r-rare { color: var(--rare); }
+.rar.r-legendary { color: var(--legend); }
+.rar.r-god { color: var(--god); }
+.perk { font-size: .82rem; color: var(--muted); }
+.box { display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: center; }
+.boxart { font-size: 4rem; line-height: 1; }
+.boxart.shake { animation: shake .5s ease; }
+@keyframes shake { 0%,100%{transform:rotate(0)} 20%{transform:rotate(-12deg)} 40%{transform:rotate(10deg)} 60%{transform:rotate(-8deg)} 80%{transform:rotate(6deg)} }
+.meter { height: 10px; border-radius: 999px; background: var(--bg); border: 1px solid var(--line); overflow: hidden; }
+.meter > i { display: block; height: 100%; background: var(--god); }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<div id="app"></div>
+
+<script>
+(() => {
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const rint = n => Math.floor(Math.random() * n);
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = rint(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+// ---------- data ----------
+const LOCS = ["kantina", "klasse1", "instrument", "gym", "reception", "hallway", "garderobe", "library", "football", "playground"];
+const LOC = {
+  kantina:    { icon: "🍽️", res: "cook" },
+  klasse1:    { icon: "📝", res: "teacher" },
+  instrument: { icon: "🥁", res: "music" },
+  gym:        { icon: "🤸", res: "gymteacher" },
+  reception:  { icon: "🛎️", res: "secretary" },
+  hallway:    { icon: "🚪", res: "caretaker" },
+  garderobe:  { icon: "🧥", res: "firstgrader" },
+  library:    { icon: "📚", res: "librarian" },
+  football:   { icon: "🥅", res: "captain" },
+  playground: { icon: "🛝", res: "monitor" },
+};
+const ROLE_ICON = {
+  rookie: "🕵️", cook: "👩‍🍳", teacher: "🧑‍🏫", music: "🧑‍🎤", gymteacher: "🏋️", secretary: "💁",
+  caretaker: "🧑‍🔧", firstgrader: "🧒", librarian: "🤓", captain: "⚽", monitor: "🦺",
+};
+const THIEVES = ["Jakob", "Vivaan", "Syver", "Adrian", "Alexsander", "Oscar-hs", "Markus", "Jonas"];
+const CHARS = [
+  { id: "rookie", r: "start" },
+  { id: "cook", r: "common" }, { id: "caretaker", r: "common" }, { id: "firstgrader", r: "common" },
+  { id: "librarian", r: "common" }, { id: "gymteacher", r: "common" },
+  { id: "secretary", r: "rare" }, { id: "music", r: "rare" }, { id: "captain", r: "rare" },
+  { id: "monitor", r: "rare" }, { id: "teacher", r: "rare" },
+  ...THIEVES.map(id => ({ id, r: "legendary" })),
+  { id: "Snute", r: "god" },
+];
+const rarityOf = id => (CHARS.find(c => c.id === id) || { r: "common" }).r;
+const COLORS = ["red", "blue", "green", "yellow", "purple", "black", "orange"];
+const HEX = { red: "#e5484d", blue: "#3e7bfa", green: "#30a46c", yellow: "#f5c518", purple: "#8e4ec6", black: "#22252b", orange: "#f76b15" };
+const ACCS = ["cap", "glasses", "headphones", "scarf", "backpack"];
+const SHOES = ["sneakers", "boots", "sandals", "cleats", "slippers"];
+const LISTS = { c: COLORS, a: ACCS, s: SHOES };
+const BOX_COST = 2, SHARDS_NEEDED = 40;
+const CASES = { cake: "🍰", party: "🎂", friend: "🫂", keys: "🔑", football: "⚽" };
+
+const TX = {
+  en: {
+    name: "Who Was It?", kicker: "Detective game", tagline: "A detective game at school. Walk the halls, ask around, catch the culprit.",
+    easy: "Easy", hard: "Hard",
+    easyDesc: "Solve 3 cases to win 1 point.", hardDesc: "Solve 5 cases to win 2 points. Clues come as riddles, and one wrong guess ends the case.",
+    play: "Play", points: "Points", shards: "Snute shards", playingAs: "Playing as", change: "Characters & mystery box",
+    howTitle: "How to play",
+    how: [
+      "You have 6 hours. Walking to a room takes 5 min. Talking to someone takes 10 min.",
+      "Some people saw something. They give you a clue and tell you where the culprit went next.",
+      "After 4 places you get the last clue: where the culprit is hiding. Talk to them, then accuse them.",
+      "Careful: other suspects can look a lot like the culprit. Check your notebook.",
+      "If you meet Snute, the Danish-Swedish farmdog, talk to him for a Snute shard. Collect 40 to play as Snute.",
+    ],
+    caseN: "Case {n} of {m}", left: "left", youAreIn: "You are in", mapTitle: "School map", notebook: "Notebook",
+    noHints: "No clues yet. Start where it was last seen.", talk: "Talk", again: "Hear again", accuse: "Accuse",
+    here: "You are here", walk: "{n} min walk", startCase: "Start case", next: "Next case", home: "Home", retry: "Play again", quit: "Quit",
+    solved: "Case solved!", failed: "Case failed", timeUp: "Time ran out. The school day is over.",
+    wrongHard: "{name} was innocent! In hard mode one wrong guess ends the case.", wrongEasy: "{name} is innocent. You lost 30 minutes.",
+    runDone: "All cases solved!", earned1: "You earned 1 point.", earnedN: "You earned {n} points.",
+    lastSeen: "Last seen", timeLimit: "Time", hours: "{h} hours", hoursMin: "{h} h {m} min",
+    nobody: "Nobody here but you.", suspect: "Suspect", dog: "Danish-Swedish farmdog", unknownLook: "Talk to see them clearly",
+    tapTalk: "Pick someone to talk to, or walk to another room.",
+    charsTitle: "Characters", box: "Mystery box", boxText: "Costs 2 points. You can win any character except Snute. Duplicates turn into 2 Snute shards.",
+    openBox: "Open for 2 points", notEnough: "You need 2 points. Solve cases to earn more.",
+    boxGot: "You got {name}!", boxDup: "Duplicate! {name} turned into 2 Snute shards.", snuteUnlocked: "Snute is unlocked! Woof!",
+    select: "Play as", selected: "Playing", locked: "Locked", back: "Back",
+    rar: { start: "Starter", common: "Common", rare: "Rare", legendary: "Legendary", god: "God" },
+    perk: { start: "No special power", common: "No special power", rare: "+30 min every case", legendary: "Talking takes only 5 min", god: "Talk 5 min, walk 2 min, and sniff out the trail" },
+    snuteNeed: "{n}/40 shards. Find Snute at school, or get duplicates from boxes.",
+    sniff: "Snute smells the trail here",
+    nb: { c: "Hoodie", a: "Had", s: "Shoes", dog: "Clue", place: "Went to", final: "Hiding in" },
+    rookie: "Rookie Detective",
+    roles: { cook: "Cook", teacher: "Class Teacher", music: "Music Teacher", gymteacher: "Gym Teacher", secretary: "School Secretary", caretaker: "Caretaker", firstgrader: "First Grader", librarian: "Librarian", captain: "Team Captain", monitor: "Recess Monitor" },
+    loc: { kantina: "Cafeteria", klasse1: "Classroom 1", instrument: "Music Room", gym: "Gym", reception: "Reception", hallway: "Hallway", garderobe: "Cloakroom", library: "Library", football: "Football Field", playground: "Playground" },
+    riddle: { kantina: "the room that smells like lunch", klasse1: "the room with the big whiteboard and 25 desks", instrument: "the room full of drums and guitars", gym: "the room with ropes hanging from the ceiling", reception: "the desk by the front door", hallway: "the long corridor with all the lockers", garderobe: "the place where all the jackets hang", library: "the place where the books sleep", football: "the grass with two goals", playground: "the place with the swings" },
+    colors: { red: "red", blue: "blue", green: "green", yellow: "yellow", purple: "purple", black: "black", orange: "orange" },
+    accs: { cap: "a cap", glasses: "glasses", headphones: "big headphones", scarf: "a scarf", backpack: "a backpack" },
+    shoes: { sneakers: "white sneakers", boots: "rain boots", sandals: "sandals", cleats: "football boots", slippers: "slippers" },
+    cases: {
+      cake: { title: "The Last Slice of Cake", intro: "Someone stole the last slice of cake from the cafeteria fridge!", win: "{name} had the cake. Half of it is already eaten..." },
+      party: { title: "The Missing Invitation", intro: "Your friend didn't invite you to their birthday party. Or did they? Someone took your invitation!", win: "{name} had your invitation. The party is on Saturday, and you're invited!" },
+      friend: { title: "Where Is My Best Friend?", intro: "Your best friend is gone! Nobody has seen them since the first break.", win: "{name} was hiding your best friend to plan a surprise for you. Mystery solved!" },
+      keys: { title: "The Teacher's Keys", intro: "The teacher's keys are gone, and now nobody can open the classroom!", win: "{name} had the keys in their pocket. The classroom is open again." },
+      football: { title: "The Vanished Football", intro: "The school's brand new football has vanished!", win: "{name} was keeping the football for a secret match. It's back now." },
+    },
+    snuteWin: "Snute ate the cake! Bad dog... but such a good boy.",
+    lines: {
+      hint_c: "I saw someone in a {color} hoodie sneaking around.",
+      hint_a: "The sneaky one had {acc}. I noticed it right away.",
+      hint_s: "I looked at their shoes: {shoes}.",
+      dog0: "I heard barking. Really loud barking!",
+      dog1: "There were tiny muddy paw prints on the floor.",
+      dog2: "Something furry with short legs zoomed past me!",
+      next_easy: "Then they went to {loc}.",
+      next_hard: "Then they went to {riddle}.",
+      final_easy: "Last clue: they are hiding in {loc} right now!",
+      final_hard: "Last clue: go to {riddle}. That's where they are hiding.",
+      noinfo: ["Hmm, I haven't seen anything strange today.", "Sorry, detective. It's just me here.", "Nope. It's been a quiet day.", "I didn't see anyone sneaky. Try somewhere else!"],
+      chat: ["Hey detective! I'm just hanging out.", "Me? I've been here the whole time. Probably.", "Did you check the cafeteria? I'm hungry.", "I'm innocent! Well, I think so."],
+      gossip_c: "Psst... someone told me the culprit wore a {color} hoodie.",
+      gossip_a: "Psst... I heard the culprit had {acc}.",
+      gossip_s: "Psst... the culprit was wearing {shoes}, I think.",
+      gossip_dog: "Psst... I think I heard a dog somewhere.",
+      nervous: ["W-what? I wasn't doing anything!", "Why are you looking at me like that?", "I was just sitting here. Promise.", "Oh! Hi... I didn't see you there."],
+      snute: "Woof! Snute wags his tail and gives you a Snute shard. ({n}/40)",
+      snuteGuilty: "Woof! (Snute has cake crumbs all over his nose...)",
+    },
+  },
+  no: {
+    name: "Hvem Var Det?", kicker: "Detektivspill", tagline: "Et detektivspill på skolen. Gå rundt, spør folk, og ta den skyldige.",
+    easy: "Lett", hard: "Vanskelig",
+    easyDesc: "Løs 3 saker for å vinne 1 poeng.", hardDesc: "Løs 5 saker for å vinne 2 poeng. Hintene er gåter, og én feil gjetning avslutter saken.",
+    play: "Spill", points: "Poeng", shards: "Snute shards", playingAs: "Spiller som", change: "Karakterer og mysterieboks",
+    howTitle: "Slik spiller du",
+    how: [
+      "Du har 6 timer. Å gå til et rom tar 5 min. Å snakke med noen tar 10 min.",
+      "Noen har sett noe. De gir deg et hint og sier hvor den skyldige gikk videre.",
+      "Etter 4 steder får du det siste hintet: hvor den skyldige gjemmer seg. Snakk med dem, og pek dem ut.",
+      "Pass på: andre mistenkte kan ligne mye på den skyldige. Sjekk notatboka.",
+      "Møter du Snute, den dansk-svenske gårdshunden, kan du snakke med han og få en Snute shard. Samle 40 for å spille som Snute.",
+    ],
+    caseN: "Sak {n} av {m}", left: "igjen", youAreIn: "Du er i", mapTitle: "Skolekart", notebook: "Notatbok",
+    noHints: "Ingen hint ennå. Start der det sist ble sett.", talk: "Snakk", again: "Hør igjen", accuse: "Pek ut",
+    here: "Du er her", walk: "{n} min å gå", startCase: "Start saken", next: "Neste sak", home: "Hjem", retry: "Spill igjen", quit: "Avslutt",
+    solved: "Saken er løst!", failed: "Saken feilet", timeUp: "Tiden er ute. Skoledagen er over.",
+    wrongHard: "{name} var uskyldig! I vanskelig modus avslutter én feil gjetning saken.", wrongEasy: "{name} er uskyldig. Du mistet 30 minutter.",
+    runDone: "Alle sakene er løst!", earned1: "Du fikk 1 poeng.", earnedN: "Du fikk {n} poeng.",
+    lastSeen: "Sist sett", timeLimit: "Tid", hours: "{h} timer", hoursMin: "{h} t {m} min",
+    nobody: "Ingen her utenom deg.", suspect: "Mistenkt", dog: "Dansk-svensk gårdshund", unknownLook: "Snakk for å se dem tydelig",
+    tapTalk: "Velg noen å snakke med, eller gå til et annet rom.",
+    charsTitle: "Karakterer", box: "Mysterieboks", boxText: "Koster 2 poeng. Du kan vinne alle karakterer utenom Snute. Duplikater blir til 2 Snute shards.",
+    openBox: "Åpne for 2 poeng", notEnough: "Du trenger 2 poeng. Løs saker for å få flere.",
+    boxGot: "Du fikk {name}!", boxDup: "Duplikat! {name} ble til 2 Snute shards.", snuteUnlocked: "Snute er låst opp! Voff!",
+    select: "Spill som", selected: "Spiller", locked: "Låst", back: "Tilbake",
+    rar: { start: "Start", common: "Vanlig", rare: "Sjelden", legendary: "Legendarisk", god: "Gud" },
+    perk: { start: "Ingen superkraft", common: "Ingen superkraft", rare: "+30 min hver sak", legendary: "Å snakke tar bare 5 min", god: "Snakk 5 min, gå 2 min, og snus opp sporet" },
+    snuteNeed: "{n}/40 shards. Finn Snute på skolen, eller få duplikater fra bokser.",
+    sniff: "Snute lukter sporet her",
+    nb: { c: "Hettegenser", a: "Hadde", s: "Sko", dog: "Hint", place: "Gikk til", final: "Gjemmer seg i" },
+    rookie: "Ny detektiv",
+    roles: { cook: "Kokken", teacher: "Kontaktlæreren", music: "Musikklæreren", gymteacher: "Gymlæreren", secretary: "Skolesekretæren", caretaker: "Vaktmesteren", firstgrader: "Førsteklassingen", librarian: "Bibliotekaren", captain: "Lagkapteinen", monitor: "Inspektøren" },
+    loc: { kantina: "Kantina", klasse1: "Klasserom 1", instrument: "Musikkrommet", gym: "Gymsalen", reception: "Resepsjonen", hallway: "Gangen", garderobe: "Garderoben", library: "Biblioteket", football: "Fotballbanen", playground: "Lekeplassen" },
+    riddle: { kantina: "rommet som lukter lunsj", klasse1: "rommet med den store tavla og 25 pulter", instrument: "rommet fullt av trommer og gitarer", gym: "rommet med tau som henger fra taket", reception: "skranken ved inngangsdøra", hallway: "den lange gangen med alle skapene", garderobe: "stedet der alle jakkene henger", library: "stedet der bøkene sover", football: "gresset med to mål", playground: "stedet med huskene" },
+    colors: { red: "rød", blue: "blå", green: "grønn", yellow: "gul", purple: "lilla", black: "svart", orange: "oransje" },
+    accs: { cap: "caps", glasses: "briller", headphones: "store hodetelefoner", scarf: "skjerf", backpack: "ryggsekk" },
+    shoes: { sneakers: "hvite joggesko", boots: "gummistøvler", sandals: "sandaler", cleats: "fotballsko", slippers: "tøfler" },
+    cases: {
+      cake: { title: "Det siste kakestykket", intro: "Noen stjal det siste kakestykket fra kjøleskapet i kantina!", win: "{name} hadde kaka. Halvparten er allerede spist..." },
+      party: { title: "Den forsvunne invitasjonen", intro: "Vennen din inviterte deg ikke til bursdagen sin. Eller gjorde de det? Noen tok invitasjonen din!", win: "{name} hadde invitasjonen din. Festen er på lørdag, og du er invitert!" },
+      friend: { title: "Hvor er bestevennen min?", intro: "Bestevennen din er borte! Ingen har sett dem siden første friminutt.", win: "{name} gjemte bestevennen din for å planlegge en overraskelse til deg. Mysteriet er løst!" },
+      keys: { title: "Lærerens nøkler", intro: "Lærerens nøkler er borte, og nå kan ingen åpne klasserommet!", win: "{name} hadde nøklene i lomma. Klasserommet er åpent igjen." },
+      football: { title: "Den forsvunne fotballen", intro: "Skolens helt nye fotball er forsvunnet!", win: "{name} passet på fotballen til en hemmelig kamp. Nå er den tilbake." },
+    },
+    snuteWin: "Snute spiste kaka! Slem hund... men for en god gutt.",
+    lines: {
+      hint_c: "Jeg så noen i {color} hettegenser som snek seg rundt.",
+      hint_a: "Den som snek seg hadde {acc}. Det la jeg merke til med en gang.",
+      hint_s: "Jeg så på skoene deres: {shoes}.",
+      dog0: "Jeg hørte bjeffing. Skikkelig høy bjeffing!",
+      dog1: "Det var små gjørmete potespor på gulvet.",
+      dog2: "Noe lodent med korte bein suste forbi meg!",
+      next_easy: "Så gikk de til {loc}.",
+      next_hard: "Så gikk de til {riddle}.",
+      final_easy: "Siste hint: de gjemmer seg i {loc} akkurat nå!",
+      final_hard: "Siste hint: gå til {riddle}. Der gjemmer de seg.",
+      noinfo: ["Hmm, jeg har ikke sett noe rart i dag.", "Beklager, detektiv. Det er bare meg her.", "Nei. Det har vært en rolig dag.", "Jeg så ingen som snek seg. Prøv et annet sted!"],
+      chat: ["Hei detektiv! Jeg bare henger her.", "Jeg? Jeg har vært her hele tiden. Tror jeg.", "Har du sjekket kantina? Jeg er sulten.", "Jeg er uskyldig! Tror jeg."],
+      gossip_c: "Psst... noen sa at den skyldige hadde {color} hettegenser.",
+      gossip_a: "Psst... jeg hørte at den skyldige hadde {acc}.",
+      gossip_s: "Psst... den skyldige hadde visst {shoes}.",
+      gossip_dog: "Psst... jeg tror jeg hørte en hund et sted.",
+      nervous: ["H-hva? Jeg gjorde ingenting!", "Hvorfor ser du sånn på meg?", "Jeg bare satt her. Lover.", "Å! Hei... jeg så deg ikke."],
+      snute: "Voff! Snute logrer med halen og gir deg en Snute shard. ({n}/40)",
+      snuteGuilty: "Voff! (Snute har kakesmuler over hele snuten...)",
+    },
+  },
+};
+
+// ---------- state ----------
+const STORE = "hvem-var-det-v1";
+let save = { points: 0, shards: 0, owned: ["rookie"], selected: "rookie", lang: "en" };
+try { const s = JSON.parse(localStorage.getItem(STORE)); if (s) save = Object.assign(save, s); } catch (e) {}
+const persist = () => { try { localStorage.setItem(STORE, JSON.stringify(save)); } catch (e) {} };
+let ui = { screen: "home", run: null, result: null, flash: null, box: null };
+
+const T = () => TX[save.lang] || TX.en;
+const nameOf = id => id === "rookie" ? T().rookie : (T().roles[id] || id);
+const locName = l => T().loc[l];
+function fill(s, p) {
+  return s.replace(/\{(\w+)\}/g, (m, k) => {
+    if (k === "color") return T().colors[p.color];
+    if (k === "acc") return T().accs[p.acc];
+    if (k === "shoes") return T().shoes[p.shoes];
+    if (k === "loc") return locName(p.loc);
+    if (k === "riddle") return T().riddle[p.loc];
+    if (k === "name") return nameOf(p.name);
+    if (p[k] !== undefined) return p[k];
+    return m;
+  });
+}
+const line = p => { let s = T().lines[p.k]; if (Array.isArray(s)) s = s[p.i % s.length]; return fill(s, p); };
+const tf = (k, p = {}) => fill(T()[k], p);
+
+const cur = () => ui.run && ui.run.c;
+const perk = () => rarityOf(save.selected);
+const talkCost = () => ["legendary", "god"].includes(perk()) ? 5 : 10;
+const walkCost = () => perk() === "god" ? 2 : 5;
+
+// ---------- case generation ----------
+function outfitFor(culprit, decoys, rest, mode) {
+  const o = {};
+  const other = (base, k) => { let v; do { v = pick(LISTS[k]); } while (v === base[k]); return v; };
+  const rnd = () => ({ c: pick(COLORS), a: pick(ACCS), s: pick(SHOES) });
+  const t = culprit === "Snute" ? null : rnd();
+  if (t) o[culprit] = t;
+  const keys = shuffle(["c", "a", "s"]);
+  decoys.forEach((d, i) => {
+    if (!t) { o[d] = rnd(); return; }
+    const x = { ...t };
+    if (mode === "hard") { const k = keys[i % 3]; x[k] = other(t, k); }
+    else { x.c = other(t, "c"); x.a = pick(ACCS); x.s = pick(SHOES); }
+    o[d] = x;
+  });
+  rest.forEach(d => {
+    const x = rnd();
+    if (t && x.c === t.c && x.a === t.a && x.s === t.s) x.c = other(t, "c");
+    o[d] = x;
+  });
+  return o;
+}
+
+function newCase(id) {
+  const me = save.selected, mode = ui.run.mode;
+  const pool = THIEVES.filter(n => n !== me);
+  const culprit = id === "cake" && me !== "Snute" && Math.random() < 0.25 ? "Snute" : pick(pool);
+  const others = shuffle(pool.filter(n => n !== culprit));
+  const nDecoy = mode === "hard" ? 2 : 1;
+  const decoys = others.slice(0, nDecoy), rest = others.slice(nDecoy);
+  const trail = shuffle(LOCS.filter(l => l !== "reception")).slice(0, 5);
+  const people = {}; LOCS.forEach(l => people[l] = []);
+  people[trail[4]] = shuffle([culprit, ...decoys]);
+  const nonFinal = LOCS.filter(l => l !== trail[4]);
+  rest.forEach(n => people[pick(nonFinal)].push(n));
+  const snute = me !== "Snute" && culprit !== "Snute" && Math.random() < 0.6 ? pick(LOCS) : null;
+  return {
+    id, culprit, trail, people, snute,
+    outfits: outfitFor(culprit, decoys, rest, mode),
+    time: 0, limit: 360 + (perk() === "rare" ? 30 : 0),
+    loc: "reception", talked: {}, found: [], said: null,
+    seeds: Object.fromEntries([...THIEVES, ...LOCS].map(k => [k, rint(97)])),
+  };
+}
+
+function trailLine(c, i) {
+  const hard = ui.run.mode === "hard";
+  const parts = [];
+  if (i < 3) {
+    if (c.culprit === "Snute") parts.push({ k: "dog" + i });
+    else {
+      const o = c.outfits[c.culprit];
+      parts.push(i === 0 ? { k: "hint_c", color: o.c } : i === 1 ? { k: "hint_a", acc: o.a } : { k: "hint_s", shoes: o.s });
+    }
+    parts.push({ k: hard ? "next_hard" : "next_easy", loc: c.trail[i + 1] });
+  } else {
+    parts.push({ k: hard ? "final_hard" : "final_easy", loc: c.trail[4] });
+  }
+  return parts;
+}
+
+// ---------- actions ----------
+function startRun(mode) {
+  const ids = mode === "hard" ? shuffle(Object.keys(CASES)) : shuffle(["cake", "party", "friend"]);
+  ui.run = { mode, ids, idx: 0, c: null };
+  ui.run.c = newCase(ids[0]);
+  ui.screen = "intro"; ui.flash = null;
+  render();
+}
+function spend(m) { cur().time += m; }
+function checkTime() {
+  const c = cur();
+  if (c.time >= c.limit) { ui.result = { ok: false, msg: tf("timeUp") }; ui.screen = "result"; }
+}
+function travel(loc) {
+  const c = cur();
+  if (loc === c.loc) return;
+  spend(walkCost());
+  if (c.talked.__dog) { delete c.talked.__dog; c.snute = Math.random() < 0.5 ? pick(LOCS.filter(l => l !== loc)) : null; }
+  c.loc = loc; c.said = null; ui.flash = null;
+  checkTime(); render();
+}
+function talk(pid) {
+  const c = cur();
+  ui.flash = null;
+  if (c.talked[pid]) { c.said = { pid, parts: c.talked[pid] }; render(); return; }
+  spend(talkCost());
+  let parts;
+  if (pid.startsWith("res:")) {
+    const loc = pid.slice(4), i = c.trail.indexOf(loc);
+    if (i >= 0 && i < 4) { parts = trailLine(c, i); if (!c.found.includes(i)) c.found.push(i); }
+    else parts = [{ k: "noinfo", i: c.seeds[loc] }];
+  } else if (pid === "__dog") {
+    save.shards++;
+    parts = [{ k: "snute", n: Math.min(save.shards, SHARDS_NEEDED) }];
+    if (save.shards >= SHARDS_NEEDED && !save.owned.includes("Snute")) { save.owned.push("Snute"); ui.flash = { ok: true, msg: tf("snuteUnlocked") }; }
+    persist();
+  } else if (pid === "Snute") {
+    parts = [{ k: "snuteGuilty" }];
+  } else if (c.loc === c.trail[4]) {
+    parts = [{ k: "nervous", i: c.seeds[pid] }];
+  } else if (c.seeds[pid] % 3 === 0) {
+    if (c.culprit === "Snute") parts = [{ k: "gossip_dog" }];
+    else {
+      const o = c.outfits[c.culprit], k = ["c", "a", "s"][c.seeds[pid] % 9 / 3 | 0];
+      parts = [k === "c" ? { k: "gossip_c", color: o.c } : k === "a" ? { k: "gossip_a", acc: o.a } : { k: "gossip_s", shoes: o.s }];
+    }
+  } else parts = [{ k: "chat", i: c.seeds[pid] }];
+  c.talked[pid] = parts;
+  c.said = { pid, parts };
+  checkTime(); render();
+}
+function accuse(name) {
+  const c = cur();
+  if (name === c.culprit) {
+    const last = ui.run.idx + 1 >= ui.run.ids.length;
+    ui.result = { ok: true, last };
+    if (last) { const n = ui.run.mode === "hard" ? 2 : 1; save.points += n; persist(); ui.result.earned = n; }
+    ui.screen = "result";
+  } else if (ui.run.mode === "hard") {
+    ui.result = { ok: false, msg: tf("wrongHard", { name }) }; ui.screen = "result";
+  } else {
+    spend(30); ui.flash = { ok: false, msg: tf("wrongEasy", { name }) }; checkTime();
+  }
+  render();
+}
+function nextCase() {
+  ui.run.idx++; ui.run.c = newCase(ui.run.ids[ui.run.idx]);
+  ui.screen = "intro"; ui.flash = null; render();
+}
+function openBox() {
+  if (save.points < BOX_COST) { ui.box = { msg: tf("notEnough"), bad: true }; render(); return; }
+  save.points -= BOX_COST;
+  const roll = Math.random();
+  const tier = roll < 0.55 ? "common" : roll < 0.85 ? "rare" : "legendary";
+  const got = pick(CHARS.filter(c => c.r === tier)).id;
+  let msg;
+  if (save.owned.includes(got)) {
+    save.shards += 2; msg = tf("boxDup", { name: got });
+    if (save.shards >= SHARDS_NEEDED && !save.owned.includes("Snute")) { save.owned.push("Snute"); msg += " " + tf("snuteUnlocked"); }
+  } else { save.owned.push(got); msg = tf("boxGot", { name: got }); }
+  persist();
+  ui.box = { msg, got, shake: true };
+  render();
+}
+function choose(id) { if (save.owned.includes(id)) { save.selected = id; persist(); render(); } }
+function setLang(l) { save.lang = l; persist(); document.documentElement.lang = l === "no" ? "no" : "en"; render(); }
+
+// ---------- views ----------
+function avatar(id, cls = "") {
+  const r = rarityOf(id);
+  if (id === "Snute" || id === "__dog") return `<div class="av r-god ${cls}" aria-hidden="true">🐕</div>`;
+  if (ROLE_ICON[id]) return `<div class="av r-${r} ${cls}" aria-hidden="true">${ROLE_ICON[id]}</div>`;
+  return `<div class="av letter r-${r} ${cls}" aria-hidden="true">${esc(id[0])}</div>`;
+}
+const langToggle = () => `<div class="lang" role="group" aria-label="Language">
+  <button data-act="lang" data-v="en" aria-pressed="${save.lang === "en"}">EN</button>
+  <button data-act="lang" data-v="no" aria-pressed="${save.lang === "no"}">NO</button></div>`;
+const stats = () => `<span class="stat" title="${T().points}">⭐ ${save.points}</span><span class="stat" title="${T().shards}">🐾 ${Math.min(save.shards, SHARDS_NEEDED)}/${SHARDS_NEEDED}</span>`;
+function topbar(extra = "") {
+  return `<div class="topbar"><div class="brand">${esc(T().name.replace("?", ""))}<span>?</span></div>
+  <div class="row">${extra}${stats()}${langToggle()}</div></div>`;
+}
+const clock = m => { const t = 8 * 60 + m; return `${String(Math.floor(t / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`; };
+const dur = m => m % 60 ? tf("hoursMin", { h: Math.floor(m / 60), m: m % 60 }) : tf("hours", { h: m / 60 });
+
+function homeView() {
+  const L = T();
+  return `${topbar()}
+  <section class="hero">
+    <div class="label">${L.kicker}</div>
+    <h1>${esc(L.name.replace("?", ""))}<span>?</span></h1>
+    <p class="tag">${esc(L.tagline)}</p>
+  </section>
+  <div class="modes">
+    <button class="mode" data-act="start" data-v="easy">
+      <span class="label">${L.play}</span><span class="big">${L.easy}</span>
+      <span>${esc(L.easyDesc)}</span><span class="pts">+1 ⭐</span>
+    </button>
+    <button class="mode hard" data-act="start" data-v="hard">
+      <span class="label">${L.play}</span><span class="big">${L.hard}</span>
+      <span>${esc(L.hardDesc)}</span><span class="pts">+2 ⭐⭐</span>
+    </button>
+  </div>
+  <div class="two">
+    <div class="panel"><h3>${L.howTitle}</h3><ol class="how" style="margin-top:12px">${L.how.map(h => `<li>${esc(h)}</li>`).join("")}</ol></div>
+    <div class="panel" style="display:grid;gap:14px;align-content:start">
+      <span class="label">${L.playingAs}</span>
+      <div class="me">${avatar(save.selected, "lg")}<div>
+        <div style="font-weight:700;font-size:1.2rem">${esc(nameOf(save.selected))}</div>
+        <div class="rar r-${perk()}">${L.rar[perk()]}</div>
+        <div class="perk">${L.perk[perk()]}</div></div></div>
+      <div><button class="btn primary" data-act="chars">🎁 ${L.change}</button></div>
+    </div>
+  </div>`;
+}
+
+function charsView() {
+  const L = T();
+  const cards = CHARS.map(ch => {
+    const own = save.owned.includes(ch.id), sel = save.selected === ch.id;
+    const extra = ch.id === "Snute" && !own
+      ? `<div class="meter"><i style="width:${Math.min(100, save.shards / SHARDS_NEEDED * 100)}%"></i></div><div class="perk">${tf("snuteNeed", { n: Math.min(save.shards, SHARDS_NEEDED) })}</div>` : "";
+    return `<div class="char ${sel ? "sel" : ""} ${own ? "" : "locked"}">
+      <div class="who row" style="flex-wrap:nowrap">${avatar(ch.id)}<div style="min-width:0">
+        <div style="font-weight:700">${esc(nameOf(ch.id))}</div><div class="rar r-${ch.r}">${L.rar[ch.r]}</div></div></div>
+      <div class="perk">${L.perk[ch.r]}</div>${extra}
+      <div>${own ? (sel ? `<span class="label">✓ ${L.selected}</span>` : `<button class="btn small" data-act="choose" data-v="${esc(ch.id)}">${L.select}</button>`) : `<span class="label">🔒 ${L.locked}</span>`}</div>
+    </div>`;
+  }).join("");
+  const b = ui.box;
+  return `${topbar(`<button class="btn small" data-act="home">← ${L.back}</button>`)}
+  <div class="panel box">
+    <div class="boxart ${b && b.shake ? "shake" : ""}" aria-hidden="true">🎁</div>
+    <div style="display:grid;gap:10px">
+      <h2>${L.box}</h2><p>${esc(L.boxText)}</p>
+      <div class="row"><button class="btn primary" data-act="box" ${save.points < BOX_COST ? "disabled" : ""}>${L.openBox}</button>
+      ${save.points < BOX_COST ? `<span class="perk">${esc(L.notEnough)}</span>` : ""}</div>
+      ${b && b.msg ? `<div class="flash ${b.bad ? "" : "ok"}">${esc(b.msg)}</div>` : ""}
+    </div>
+  </div>
+  <h2>${L.charsTitle}</h2>
+  <div class="chars">${cards}</div>`;
+}
+
+function introView() {
+  const L = T(), c = cur(), cs = L.cases[c.id];
+  return `${topbar()}
+  <div class="panel casecard center">
+    <span class="label">${tf("caseN", { n: ui.run.idx + 1, m: ui.run.ids.length })} · ${ui.run.mode === "hard" ? L.hard : L.easy}</span>
+    <div class="caseicon" aria-hidden="true">${CASES[c.id]}</div>
+    <h2>${esc(cs.title)}</h2>
+    <p style="font-size:1.1rem">${esc(cs.intro)}</p>
+    <div class="row">
+      <span class="stat">🔎 ${L.lastSeen}: ${esc(locName(c.trail[0]))}</span>
+      <span class="stat">⏱ ${L.timeLimit}: ${dur(c.limit)}</span>
+    </div>
+    <div class="row"><button class="btn primary" data-act="go">${L.startCase} →</button><button class="btn" data-act="home">${L.quit}</button></div>
+  </div>`;
+}
+
+function personCard(c, pid) {
+  const L = T();
+  const talked = !!c.talked[pid];
+  const active = c.said && c.said.pid === pid;
+  let av, nm, role, tags = "", accuseBtn = "";
+  if (pid.startsWith("res:")) {
+    const r = LOC[pid.slice(4)].res;
+    av = avatar(r); nm = nameOf(r); role = locName(pid.slice(4));
+  } else if (pid === "__dog" || pid === "Snute") {
+    av = avatar("Snute"); nm = "Snute"; role = L.dog;
+    if (pid === "Snute" && talked) accuseBtn = `<button class="btn small danger" data-act="accuse" data-v="Snute">${L.accuse}</button>`;
+  } else {
+    av = avatar(pid); nm = pid; role = L.suspect;
+    const o = c.outfits[pid];
+    tags = talked
+      ? `<div class="tags"><span class="t"><i class="sw" style="background:${HEX[o.c]}"></i>${esc(L.colors[o.c])}</span><span class="t">${esc(L.accs[o.a])}</span><span class="t">${esc(L.shoes[o.s])}</span></div>`
+      : `<div class="tags"><span class="t">? ${esc(L.unknownLook)}</span></div>`;
+    if (talked) accuseBtn = `<button class="btn small danger" data-act="accuse" data-v="${esc(pid)}">${L.accuse}</button>`;
+  }
+  return `<div class="person ${active ? "active" : ""}">
+    <div class="who">${av}<div style="min-width:0"><div class="nm">${esc(nm)}</div><div class="role">${esc(role)}</div></div></div>
+    ${tags}
+    <div class="row"><button class="btn small ${talked ? "" : "primary"}" data-act="talk" data-v="${esc(pid)}">${talked ? L.again : `${L.talk} · ${talkCost()} min`}</button>${accuseBtn}</div>
+  </div>`;
+}
+
+function gameView() {
+  const L = T(), c = cur();
+  const left = c.limit - c.time, pct = Math.max(0, left / c.limit * 100);
+  const here = [`res:${c.loc}`, ...c.people[c.loc]];
+  if (c.snute === c.loc) here.push("__dog");
+  const speaker = c.said ? (c.said.pid.startsWith("res:") ? nameOf(LOC[c.said.pid.slice(4)].res) : c.said.pid === "__dog" ? "Snute" : c.said.pid) : "";
+  const sniffLoc = perk() === "god" ? c.trail[Math.min(c.found.length, 4)] : null;
+  const tiles = LOCS.map(l => `<button class="tile ${l === c.loc ? "here" : ""} ${l === sniffLoc ? "sniff" : ""}" data-act="travel" data-v="${l}" ${l === c.loc ? 'aria-current="true"' : ""} title="${l === sniffLoc ? esc(L.sniff) : ""}">
+      <span class="ic" aria-hidden="true">${LOC[l].icon}</span><span class="n">${esc(locName(l))}${l === sniffLoc ? " 🐾" : ""}</span>
+      <span class="c">${l === c.loc ? L.here : tf("walk", { n: walkCost() })}</span></button>`).join("");
+  const found = c.found.slice().sort((a, b) => a - b);
+  const notes = found.length ? found.map(i => {
+    const p = trailLine(c, i);
+    return `<div class="note"><b>${i + 1}</b><div>${p.map(x => esc(line(x))).join(" ")}</div></div>`;
+  }).join("") : `<p class="perk" style="font-family:var(--f-body)">${esc(L.noHints)} (${esc(locName(c.trail[0]))})</p>`;
+
+  return `${topbar(`<button class="btn small" data-act="home">${L.quit}</button>`)}
+  <div class="panel gamehead">
+    <div class="spread">
+      <div><span class="label">${tf("caseN", { n: ui.run.idx + 1, m: ui.run.ids.length })} · ${ui.run.mode === "hard" ? L.hard : L.easy}</span>
+        <h2>${CASES[c.id]} ${esc(L.cases[c.id].title)}</h2></div>
+      <div style="text-align:right"><div class="clock">${clock(c.time)}</div><div class="perk">${dur(Math.max(0, left))} ${L.left}</div></div>
+    </div>
+    <div class="timebar ${pct < 25 ? "low" : ""}" role="progressbar" aria-valuemin="0" aria-valuemax="${c.limit}" aria-valuenow="${Math.max(0, left)}"><i style="width:${pct}%"></i></div>
+  </div>
+  ${ui.flash ? `<div class="flash ${ui.flash.ok ? "ok" : ""}">${esc(ui.flash.msg)}</div>` : ""}
+  <div class="board">
+    <div class="col">
+      <div class="panel">
+        <div class="roomhead"><div class="roomicon" aria-hidden="true">${LOC[c.loc].icon}</div>
+          <div><span class="label">${L.youAreIn}</span><h2>${esc(locName(c.loc))}</h2></div></div>
+        <div class="people">${here.map(p => personCard(c, p)).join("")}</div>
+      </div>
+      <div class="bubble ${c.said ? "" : "empty"}" aria-live="polite">
+        ${c.said ? `<span class="spk">${esc(speaker)}</span><span>${c.said.parts.map(x => esc(line(x))).join(" ")}</span>` : `<span>${esc(L.tapTalk)}</span>`}
+      </div>
+    </div>
+    <div class="col">
+      <div class="panel"><h3>${L.mapTitle}</h3><div class="map">${tiles}</div></div>
+      <div class="panel"><h3>📓 ${L.notebook}</h3><div class="notes">${notes}</div></div>
+    </div>
+  </div>`;
+}
+
+function resultView() {
+  const L = T(), r = ui.result, c = cur();
+  let body;
+  if (r.ok) {
+    body = `<span class="stamp">${L.solved}</span>
+      <div class="me">${avatar(c.culprit, "lg")}<p style="font-size:1.15rem">${esc(c.culprit === "Snute" ? L.snuteWin : fill(L.cases[c.id].win, { name: c.culprit }))}</p></div>
+      ${r.last ? `<h2>${L.runDone}</h2><p style="font-size:1.1rem">⭐ ${r.earned === 1 ? L.earned1 : tf("earnedN", { n: r.earned })}</p>
+        <div class="row"><button class="btn primary" data-act="start" data-v="${ui.run.mode}">${L.retry}</button><button class="btn" data-act="chars">🎁 ${L.box}</button><button class="btn" data-act="home">${L.home}</button></div>`
+      : `<div class="row"><button class="btn primary" data-act="next">${L.next} →</button><button class="btn" data-act="home">${L.quit}</button></div>`}`;
+  } else {
+    body = `<span class="stamp bad">${L.failed}</span><p style="font-size:1.15rem">${esc(r.msg)}</p>
+      <div class="row"><button class="btn primary" data-act="start" data-v="${ui.run.mode}">${L.retry}</button><button class="btn" data-act="home">${L.home}</button></div>`;
+  }
+  return `${topbar()}<div class="panel casecard center">
+    <span class="label">${tf("caseN", { n: ui.run.idx + 1, m: ui.run.ids.length })} · ${esc(L.cases[c.id].title)}</span>${body}</div>`;
+}
+
+const app = document.getElementById("app");
+function render() {
+  const v = { home: homeView, chars: charsView, intro: introView, game: gameView, result: resultView }[ui.screen] || homeView;
+  app.innerHTML = v();
+  if (ui.box) ui.box.shake = false;
+}
+app.addEventListener("click", e => {
+  const b = e.target.closest("[data-act]");
+  if (!b || b.disabled) return;
+  const v = b.dataset.v;
+  switch (b.dataset.act) {
+    case "lang": setLang(v); break;
+    case "start": startRun(v); break;
+    case "go": ui.screen = "game"; render(); break;
+    case "travel": travel(v); break;
+    case "talk": talk(v); break;
+    case "accuse": accuse(v); break;
+    case "next": nextCase(); break;
+    case "home": ui.screen = "home"; ui.run = null; ui.box = null; render(); break;
+    case "chars": ui.screen = "chars"; ui.box = null; render(); break;
+    case "box": openBox(); break;
+    case "choose": choose(v); break;
+  }
+  if (["go", "next", "start"].includes(b.dataset.act)) window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+window.claude?.hot?.snapshot?.(() => ({ ui }));
+function start(data) {
+  if (data && data.ui) ui = data.ui;
+  document.documentElement.lang = save.lang === "no" ? "no" : "en";
+  render();
+}
+window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+})();
+</script>
+
+</body>
+</html>
