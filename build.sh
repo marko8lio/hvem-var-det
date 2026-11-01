@@ -1,7 +1,8 @@
 #!/bin/sh
 # Wraps the artifact-style pages in full HTML documents for GitHub Pages (served from /docs).
-#   index.html    -> docs/index.html     (version 1, keep as is)
-#   v2/index.html -> docs/v2/index.html  (version 2)
+#   v2/index.html -> docs/index.html     (newest version, on the main link)
+#   v1/index.html -> docs/v1/index.html  (version 1, keep as is)
+#   docs/v2/      -> redirect to the main link, for old /v2/ links
 cd "$(dirname "$0")"
 wrap() {
   {
@@ -11,5 +12,18 @@ wrap() {
     printf '\n</body>\n</html>\n'
   } > "$2"
 }
-wrap index.html docs/index.html
-wrap v2/index.html docs/v2/index.html
+mkdir -p docs/v1 docs/v2
+wrap v2/index.html docs/index.html
+wrap v1/index.html docs/v1/index.html
+cat > docs/v2/index.html <<'HTML'
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hvem Var Det?</title>
+<meta http-equiv="refresh" content="0; url=../">
+<link rel="canonical" href="../">
+</head>
+<body><a href="../">Hvem Var Det?</a></body>
+</html>
+HTML
