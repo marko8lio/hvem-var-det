@@ -313,7 +313,7 @@ const TX = {
     suspect: "Suspect", dog: "Danish-Swedish farmdog", unknownLook: "Talk to see them clearly",
     tapTalk: "Click someone to talk to them, or walk to another room.",
     footsteps: "You hear running footsteps somewhere in the school...",
-    bonus20: "Alexsander knows this classroom. +20 min!",
+    bonus20: "Alexsander knows this classroom. +20 min! ({n} of 3)",
     mindGuilty: "Klara reads {name}'s mind: GUILTY!", mindInnocent: "Klara reads {name}'s mind: innocent.",
     guilty: "Guilty", innocent: "Innocent",
     godbit: "Golden treat", godbitDesc: "A secret treat. Whoever eats it gets everything in the game.", takeGodbit: "Eat the treat",
@@ -328,7 +328,7 @@ const TX = {
     perk: { start: "No special power", common: "No special power", rare: "+30 min every case", legendary: "Talking takes only 5 min", mythic: "Talking takes only 5 min", admin: "Talking takes only 5 min", god: "Talk 5 min, walk 2 min, and sniff out the next place on the trail" },
     power: {
       rizz: "Rizz: everyone you talk to gives you an extra clue.",
-      class20: "+20 min every time you walk into a classroom.",
+      class20: "+20 min when you walk into a classroom, up to 3 times per case.",
       friends: "Makes friends fast: everyone in a room tells you who they are and what they wear, without talking.",
       mind: "Mind reading: once per case, find out if a suspect is guilty.",
       shards2: "Double Snute shards.",
@@ -410,7 +410,7 @@ const TX = {
     suspect: "Mistenkt", dog: "Dansk-svensk gårdshund", unknownLook: "Snakk for å se dem tydelig",
     tapTalk: "Klikk på noen for å snakke med dem, eller gå til et annet rom.",
     footsteps: "Du hører løpende skritt et sted på skolen...",
-    bonus20: "Alexsander kjenner dette klasserommet. +20 min!",
+    bonus20: "Alexsander kjenner dette klasserommet. +20 min! ({n} av 3)",
     mindGuilty: "Klara leser tankene til {name}: SKYLDIG!", mindInnocent: "Klara leser tankene til {name}: uskyldig.",
     guilty: "Skyldig", innocent: "Uskyldig",
     godbit: "Gullgodbit", godbitDesc: "En hemmelig godbit. Den som spiser den får alt i spillet.", takeGodbit: "Spis godbiten",
@@ -425,7 +425,7 @@ const TX = {
     perk: { start: "Ingen superkraft", common: "Ingen superkraft", rare: "+30 min hver sak", legendary: "Å snakke tar bare 5 min", mythic: "Å snakke tar bare 5 min", admin: "Å snakke tar bare 5 min", god: "Snakk 5 min, gå 2 min, og snus opp neste sted på sporet" },
     power: {
       rizz: "Rizz: alle du snakker med gir deg et ekstra hint.",
-      class20: "+20 min hver gang du går inn i et klasserom.",
+      class20: "+20 min når du går inn i et klasserom, opptil 3 ganger per sak.",
       friends: "Får venner kjapt: alle i et rom forteller hvem de er og hva de har på seg, uten at du snakker med dem.",
       mind: "Tankelesing: én gang per sak kan du finne ut om en mistenkt er skyldig.",
       shards2: "Doble Snute shards.",
@@ -816,7 +816,10 @@ function travel(loc) {
   spend(walkCost());
   if (c.talked.__dog) { delete c.talked.__dog; c.snute = Math.random() < 0.5 ? pick(LOCS.filter(l => l !== loc)) : null; }
   c.loc = loc; c.said = null;
-  if (power() === "class20" && CLASSROOMS.includes(loc)) { c.limit += 20; ui.flash = { ok: true, msg: tf("bonus20") }; }
+  if (power() === "class20" && CLASSROOMS.includes(loc) && (c.bonus20 || 0) < 3) {
+    c.bonus20 = (c.bonus20 || 0) + 1; c.limit += 20;
+    ui.flash = { ok: true, msg: tf("bonus20", { n: c.bonus20 }) };
+  }
   meet(c);
   after(); render();
 }
