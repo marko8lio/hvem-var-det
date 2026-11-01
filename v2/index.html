@@ -194,6 +194,17 @@ button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--rare);
 @keyframes shake { 0%,100%{transform:rotate(0)} 20%{transform:rotate(-12deg)} 40%{transform:rotate(10deg)} 60%{transform:rotate(-8deg)} 80%{transform:rotate(6deg)} }
 .meter { height: 10px; border-radius: 999px; background: var(--bg); border: 1px solid var(--line); overflow: hidden; }
 .meter > i { display: block; height: 100%; background: var(--god); }
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.tab { border: 2px solid var(--ink); border-radius: 999px; background: var(--paper); padding: 6px 14px; font-weight: 700; font-size: .88rem; }
+.tab[aria-selected="true"] { background: var(--ink); color: var(--paper); }
+.tablewrap { overflow-x: auto; }
+.lbtable { width: 100%; border-collapse: collapse; font-size: .95rem; }
+.lbtable th { text-align: left; font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 6px 10px; border-bottom: 2px solid var(--ink); }
+.lbtable td { padding: 8px 10px; border-bottom: 1px solid var(--line); }
+.lbtable .num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.lbtable tr.me td { background: color-mix(in srgb, var(--marker) 30%, var(--paper)); font-weight: 700; }
+.nameform { display: grid; gap: 6px; }
+.nameform input { font: inherit; padding: 9px 12px; border: 2px solid var(--ink); border-radius: 10px; background: var(--paper); color: var(--ink); min-width: 0; width: 14em; max-width: 100%; }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 
@@ -254,6 +265,9 @@ const KEYS = ["c", "a", "s"];
 const LISTS = { c: COLORS, a: ACCS, s: SHOES };
 const FIELD = { c: "color", a: "acc", s: "shoes" };
 const BOX_COST = 2, DUP_SHARDS = 5, SNUTE_UNLOCK = 400, SNUTE_SUPER = 2000;
+// Shared leaderboard on Supabase (see supabase/leaderboard.sql). The key is the public anon key, safe to ship.
+const LB = { url: "", key: "" };
+const lbOn = () => !!(LB.url && LB.key);
 const CASES = { cake: "🍰", party: "🎂", friend: "🫂", keys: "🔑", football: "⚽" };
 
 const TX = {
@@ -271,6 +285,13 @@ const TX = {
       "In hard mode one witness lies. Compare clues from other people to find the lie.",
       "Meet Snute, the Danish-Swedish farmdog, for Snute shards. 400 unlocks him. 2000 makes him Super-Snute. There is no max.",
     ],
+    leaders: "Leaderboard", lbPoints: "Most points", lbEasy: "Fastest · Easy", lbHard: "Fastest · Hard",
+    lbLoading: "Loading the leaderboard...", lbError: "Couldn't reach the leaderboard. Check your internet and try again.",
+    lbEmpty: "Nobody here yet. Finish a run to be the first!", lbRetry: "Try again",
+    lbName: "Your name on the leaderboard", lbNameHint: "2–16 characters. Everyone can see it, so don't use your full name.",
+    lbSave: "Save to leaderboard", lbSaving: "Saving...", lbSaved: "Saved on the leaderboard!", lbSaveErr: "Couldn't save: {msg}",
+    lbChange: "Change name", lbYou: "you", colName: "Name", colPoints: "Points", colTime: "Game time", colChar: "Played as",
+    playTime: "Game time: {t}", lbFastNote: "Game time is the clock in the game, added up over all the cases in the run.",
     caseN: "Case {n} of {m}", left: "left", youAreIn: "You are in", notebook: "Notebook", mapHint: "Click a room to walk there. Click a person in your room to talk.",
     noHints: "No clues yet. Start where it was last seen:", talk: "Talk", again: "Hear again", accuse: "Accuse", readMind: "Read mind",
     here: "You are here", walk: "{n} min", startCase: "Start case", next: "Next case", home: "Home", retry: "Play again", quit: "Quit",
@@ -361,6 +382,13 @@ const TX = {
       "I vanskelig modus lyver ett vitne. Sammenlign med hint fra andre for å finne løgnen.",
       "Møt Snute, den dansk-svenske gårdshunden, for Snute shards. 400 låser han opp. 2000 gjør han til Super-Snute. Det er ingen grense.",
     ],
+    leaders: "Leaderboard", lbPoints: "Flest poeng", lbEasy: "Raskest · Lett", lbHard: "Raskest · Vanskelig",
+    lbLoading: "Henter leaderboarden...", lbError: "Fikk ikke kontakt med leaderboarden. Sjekk internett og prøv igjen.",
+    lbEmpty: "Ingen her ennå. Fullfør en runde for å bli den første!", lbRetry: "Prøv igjen",
+    lbName: "Navnet ditt på leaderboarden", lbNameHint: "2–16 tegn. Alle kan se det, så ikke bruk fullt navn.",
+    lbSave: "Lagre på leaderboarden", lbSaving: "Lagrer...", lbSaved: "Lagret på leaderboarden!", lbSaveErr: "Klarte ikke å lagre: {msg}",
+    lbChange: "Bytt navn", lbYou: "deg", colName: "Navn", colPoints: "Poeng", colTime: "Spilletid", colChar: "Spilte som",
+    playTime: "Spilletid: {t}", lbFastNote: "Spilletid er klokka i spillet, lagt sammen for alle sakene i runden.",
     caseN: "Sak {n} av {m}", left: "igjen", youAreIn: "Du er i", notebook: "Notatbok", mapHint: "Klikk på et rom for å gå dit. Klikk på en person i rommet ditt for å snakke.",
     noHints: "Ingen hint ennå. Start der det sist ble sett:", talk: "Snakk", again: "Hør igjen", accuse: "Pek ut", readMind: "Les tanker",
     here: "Du er her", walk: "{n} min", startCase: "Start saken", next: "Neste sak", home: "Hjem", retry: "Spill igjen", quit: "Avslutt",
@@ -441,7 +469,7 @@ const TX = {
 
 // ---------- save ----------
 const STORE = "hvem-var-det-v2";
-let save = { points: 0, shards: 0, owned: ["rookie"], selected: "rookie", lang: "en", admin: false, superSeen: false };
+let save = { points: 0, shards: 0, owned: ["rookie"], selected: "rookie", lang: "en", admin: false, superSeen: false, pid: "", name: "" };
 try {
   const s = JSON.parse(localStorage.getItem(STORE));
   if (s) save = Object.assign(save, s);
@@ -457,6 +485,12 @@ try {
   }
 } catch (e) {}
 const persist = () => { try { localStorage.setItem(STORE, JSON.stringify(save)); } catch (e) {} };
+// A secret id per browser, so the leaderboard can add up one player's points. It is never shown.
+if (!save.pid) {
+  save.pid = window.crypto && crypto.randomUUID ? crypto.randomUUID()
+    : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, ch => (ch ^ Math.random() * 16 >> ch / 4).toString(16));
+  persist();
+}
 let ui = { screen: "home", run: null, result: null, flash: null, box: null };
 let walking = false;
 
@@ -657,7 +691,7 @@ function meet(c) { if (power() === "friends") c.people[c.loc].forEach(n => c.met
 // ---------- actions ----------
 function startRun(mode) {
   const ids = mode === "hard" ? shuffle(Object.keys(CASES)) : shuffle(["cake", "party", "friend"]);
-  ui.run = { mode, ids, idx: 0, c: null };
+  ui.run = { mode, ids, idx: 0, c: null, total: 0 };
   ui.run.c = newCase(ids[0]);
   ui.screen = "intro"; ui.flash = null;
   render();
@@ -757,9 +791,17 @@ function accuse(name) {
   const c = cur();
   if (name === c.culprit) {
     const last = ui.run.idx + 1 >= ui.run.ids.length;
+    ui.run.total += c.time;
     ui.result = { ok: true, last };
-    if (last) { const n = isHard() ? 2 : 1; save.points += n; persist(); ui.result.earned = n; }
+    if (last) {
+      const n = isHard() ? 2 : 1;
+      save.points += n; persist();
+      ui.result.earned = n;
+      ui.result.minutes = ui.run.total;
+      if (lbOn()) ui.result.pending = { mode: ui.run.mode, minutes: ui.run.total, character: save.selected };
+    }
     ui.screen = "result";
+    if (ui.result.pending && save.name) { submitRun(); return; }
   } else if (isHard()) {
     ui.result = { ok: false, msg: "wrongHard", name }; ui.screen = "result";
   } else {
@@ -814,6 +856,47 @@ function openBox() {
 function choose(id) { if (save.owned.includes(id)) { save.selected = id; persist(); render(); } }
 function setLang(l) { save.lang = l; persist(); document.documentElement.lang = l === "no" ? "no" : "en"; render(); }
 
+// ---------- leaderboard ----------
+const lbHeaders = () => ({ apikey: LB.key, Authorization: `Bearer ${LB.key}`, "Content-Type": "application/json" });
+async function rpc(fn, body) {
+  const r = await fetch(`${LB.url}/rest/v1/rpc/${fn}`, { method: "POST", headers: lbHeaders(), body: JSON.stringify(body) });
+  if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error(j.message || `HTTP ${r.status}`); }
+}
+async function lbGet(path) {
+  const r = await fetch(`${LB.url}/rest/v1/${path}`, { headers: lbHeaders() });
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.json();
+}
+async function submitRun() {
+  const res = ui.result, p = res && res.pending;
+  if (!p || !save.name) return;
+  res.lb = "saving"; render();
+  try {
+    await rpc("record_run", { p_id: save.pid, p_name: save.name, p_mode: p.mode, p_minutes: p.minutes, p_character: p.character });
+    res.lb = "saved"; res.pending = null;
+  } catch (e) { res.lb = "error"; res.lbErr = e.message; }
+  render();
+}
+async function openLeaders() {
+  ui.screen = "leaders"; ui.lb = { loading: true }; ui.lbTab = ui.lbTab || "points"; render();
+  const fast = mode => `leaderboard_fastest?select=name,minutes,character&mode=eq.${mode}&order=minutes.asc,created_at.asc&limit=25`;
+  try {
+    const [points, easy, hard] = await Promise.all([
+      lbGet("leaderboard_points?select=name,points&order=points.desc,updated_at.asc&limit=25"), lbGet(fast("easy")), lbGet(fast("hard")),
+    ]);
+    ui.lb = { points, easy, hard };
+  } catch (e) { ui.lb = { error: true }; }
+  if (ui.screen === "leaders") render();
+}
+async function saveName(name) {
+  const clean = name.replace(/\s+/g, " ").trim().slice(0, 16);
+  if (clean.length < 2) return;
+  save.name = clean; persist();
+  if (ui.screen === "result") { submitRun(); return; }
+  try { await rpc("set_name", { p_id: save.pid, p_name: clean }); } catch (e) {}
+  openLeaders();
+}
+
 // ---------- views ----------
 const langToggle = () => `<div class="lang" role="group" aria-label="Language">
   <button data-act="lang" data-v="en" aria-pressed="${save.lang === "en"}">EN</button>
@@ -859,7 +942,7 @@ function homeView() {
       <div class="me">${avatar(save.selected, "lg")}<div style="display:grid;gap:2px">
         <div style="font-weight:700;font-size:1.2rem">${esc(nameOf(save.selected))}</div>
         <div class="rar r-${tier()}">${L.rar[tier()]}</div>${perkLines(save.selected)}</div></div>
-      <div class="row"><button class="btn primary" data-act="chars">🎁 ${L.change}</button><a class="perk" href="v1/">${L.v1}</a></div>
+      <div class="row"><button class="btn primary" data-act="chars">🎁 ${L.change}</button>${lbOn() ? `<button class="btn" data-act="leaders">🏆 ${L.leaders}</button>` : ""}<a class="perk" href="v1/">${L.v1}</a></div>
     </div>
   </div>`;
 }
@@ -1030,6 +1113,51 @@ function gameView() {
   </div>`;
 }
 
+function nameForm(btnLabel) {
+  const L = T();
+  return `<form class="nameform" data-form="name">
+    <label for="lbname" class="label">${L.lbName}</label>
+    <div class="row"><input id="lbname" name="lbname" maxlength="16" minlength="2" required autocomplete="nickname" value="${esc(save.name)}">
+    <button class="btn primary" type="submit">${btnLabel}</button></div>
+    <span class="perk">${esc(L.lbNameHint)}</span></form>`;
+}
+function lbResult(r) {
+  const L = T();
+  if (!lbOn() || (!r.pending && !r.lb)) return "";
+  if (r.lb === "saving") return `<p class="perk">${L.lbSaving}</p>`;
+  if (r.lb === "saved") return `<div class="row"><span class="flash ok">🏆 ${L.lbSaved}</span><button class="btn" data-act="leaders">${L.leaders}</button></div>`;
+  if (r.lb === "error") return `<div class="row"><span class="flash">${esc(tf("lbSaveErr", { msg: r.lbErr }))}</span><button class="btn" data-act="lbsubmit">${L.lbRetry}</button></div>`;
+  return nameForm(L.lbSave);
+}
+
+function leadersView() {
+  const L = T(), lb = ui.lb || {}, tab = ui.lbTab;
+  const tabs = [["points", L.lbPoints], ["easy", L.lbEasy], ["hard", L.lbHard]].map(([k, label]) =>
+    `<button class="tab" role="tab" aria-selected="${tab === k}" data-act="lbtab" data-v="${k}">${label}</button>`).join("");
+  let body;
+  if (lb.loading) body = `<p class="perk">${L.lbLoading}</p>`;
+  else if (lb.error) body = `<div class="row"><span class="flash">${esc(L.lbError)}</span><button class="btn" data-act="leaders">${L.lbRetry}</button></div>`;
+  else {
+    const rows = lb[tab] || [];
+    if (!rows.length) body = `<p class="perk">${esc(L.lbEmpty)}</p>`;
+    else {
+      const head = tab === "points" ? `<th>${L.colPoints}</th>` : `<th>${L.colTime}</th><th>${L.colChar}</th>`;
+      body = `<div class="tablewrap"><table class="lbtable"><thead><tr><th>#</th><th>${L.colName}</th>${head}</tr></thead><tbody>${rows.map((x, i) => {
+        const me = save.name && x.name === save.name;
+        const cells = tab === "points" ? `<td class="num">⭐ ${x.points}</td>` : `<td class="num">${esc(dur(x.minutes))}</td><td>${esc(x.character ? nameOf(x.character) : "")}</td>`;
+        return `<tr class="${me ? "me" : ""}"><td class="num">${i < 3 ? ["🥇", "🥈", "🥉"][i] : i + 1}</td><td>${esc(x.name)}${me ? ` <span class="label">(${L.lbYou})</span>` : ""}</td>${cells}</tr>`;
+      }).join("")}</tbody></table></div>${tab === "points" ? "" : `<p class="perk">${esc(L.lbFastNote)}</p>`}`;
+    }
+  }
+  return `${topbar(`<button class="btn small" data-act="home">← ${L.back}</button>`)}
+  <div class="panel" style="display:grid;gap:16px">
+    <h2>🏆 ${L.leaders}</h2>
+    <div class="tabs" role="tablist">${tabs}</div>
+    ${body}
+  </div>
+  <div class="panel">${nameForm(L.lbChange)}</div>`;
+}
+
 function resultView() {
   const L = T(), r = ui.result, c = cur();
   let body;
@@ -1037,7 +1165,8 @@ function resultView() {
     const win = c.culprit === "Snute" ? L.snuteWin : fill(L.cases[c.id].win, { name: c.culprit });
     body = `<span class="stamp">${L.solved}</span>
       <div class="me"><div class="av lg r-${rarityOf(c.culprit)}">${figSvg(c.culprit === "Snute" ? { kind: "dog" } : { kind: "kid", name: c.culprit, o: c.outfits[c.culprit] }, 52)}</div><p style="font-size:1.15rem">${esc(win)}</p></div>
-      ${r.last ? `<h2>${L.runDone}</h2><p style="font-size:1.1rem">⭐ ${r.earned === 1 ? L.earned1 : tf("earnedN", { n: r.earned })}</p>
+      ${r.last ? `<h2>${L.runDone}</h2><p style="font-size:1.1rem">⭐ ${r.earned === 1 ? L.earned1 : tf("earnedN", { n: r.earned })} · ⏱ ${esc(tf("playTime", { t: dur(r.minutes) }))}</p>
+        ${lbResult(r)}
         <div class="row"><button class="btn primary" data-act="start" data-v="${ui.run.mode}">${L.retry}</button><button class="btn" data-act="chars">🎁 ${L.box}</button><button class="btn" data-act="home">${L.home}</button></div>`
       : `<div class="row"><button class="btn primary" data-act="next">${L.next} →</button><button class="btn" data-act="home">${L.quit}</button></div>`}`;
   } else {
@@ -1050,7 +1179,7 @@ function resultView() {
 
 const app = document.getElementById("app");
 function render() {
-  const v = { home: homeView, chars: charsView, intro: introView, game: gameView, result: resultView }[ui.screen] || homeView;
+  const v = { home: homeView, chars: charsView, intro: introView, game: gameView, result: resultView, leaders: leadersView }[ui.screen] || homeView;
   app.innerHTML = v();
   if (ui.box) ui.box.shake = false;
 }
@@ -1071,6 +1200,9 @@ function act(el) {
     case "chars": ui.screen = "chars"; ui.box = null; render(); break;
     case "box": openBox(); break;
     case "choose": choose(v); break;
+    case "leaders": openLeaders(); break;
+    case "lbtab": ui.lbTab = v; render(); break;
+    case "lbsubmit": submitRun(); break;
   }
   if (["go", "next", "start"].includes(el.dataset.act)) window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -1078,6 +1210,11 @@ app.addEventListener("click", e => {
   const el = e.target.closest("[data-act]");
   if (!el || el.disabled || walking) return;
   act(el);
+});
+app.addEventListener("submit", e => {
+  e.preventDefault();
+  const input = e.target.querySelector("#lbname");
+  if (input) saveName(input.value);
 });
 app.addEventListener("keydown", e => {
   if (e.key !== "Enter" && e.key !== " ") return;
