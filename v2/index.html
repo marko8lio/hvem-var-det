@@ -244,21 +244,21 @@ const ROLE_ICON = {
   cook: "👩‍🍳", teacher: "🧑‍🏫", substitute: "📋", music: "🎸", science: "🔬", librarian: "📖", caretaker: "🔧",
   secretary: "☎️", firstgrader: "🎈", second: "🧃", cleaner: "🧽", aide: "🧘", gymteacher: "📣", captain: "🏆", monitor: "🦺",
 };
-const SUSPECTS = ["Jakob", "Vivaan", "Syver", "Adrian", "Alexsander", "Oscar-hs", "Markus", "Jonas", "Anna", "Celine", "Diana", "Ms Alen", "Shreysh", "Olivia", "Klara"];
+const SUSPECTS = ["Jakob", "Vivaan", "Syver", "Adrian", "Alexsander", "Oscar HS", "Markus", "Jonas", "Anna", "Celine", "Diana", "Ms Allan", "Shreysh", "Olivia", "Klara"];
 const CHARS = [
   { id: "rookie", r: "start" },
   ...["cook", "caretaker", "firstgrader", "second", "librarian", "gymteacher", "cleaner", "aide"].map(id => ({ id, r: "common" })),
   ...["secretary", "music", "captain", "monitor", "teacher", "science", "substitute"].map(id => ({ id, r: "rare" })),
-  ...["Jakob", "Vivaan", "Syver", "Adrian", "Alexsander", "Oscar-hs", "Anna", "Celine", "Diana", "Ms Alen", "Shreysh", "Olivia"].map(id => ({ id, r: "legendary" })),
+  ...["Jakob", "Vivaan", "Syver", "Adrian", "Alexsander", "Oscar HS", "Anna", "Celine", "Diana", "Ms Allan", "Shreysh", "Olivia"].map(id => ({ id, r: "legendary" })),
   { id: "Klara", r: "mythic" },
   { id: "Markus", r: "admin" }, { id: "Jonas", r: "admin" },
   { id: "Snute", r: "god" },
 ];
-const POWER = { Jakob: "rizz", Alexsander: "class20", Celine: "friends", Klara: "mind", "Oscar-hs": "shards2", Markus: "xray", Jonas: "xray" };
+const POWER = { Jakob: "rizz", Alexsander: "class20", Celine: "friends", Klara: "mind", "Oscar HS": "shards2", Markus: "xray", Jonas: "xray" };
 const rarityOf = id => (CHARS.find(c => c.id === id) || { r: "common" }).r;
-const COLORS = ["red", "blue", "green", "yellow", "purple", "black", "orange"];
-const HEX = { red: "#e5484d", blue: "#3e7bfa", green: "#30a46c", yellow: "#f5c518", purple: "#8e4ec6", black: "#2a2d34", orange: "#f76b15" };
-const ACCS = ["cap", "glasses", "headphones", "scarf", "backpack"];
+const COLORS = ["red", "blue", "green", "yellow", "purple", "black", "orange", "white", "grey"];
+const HEX = { red: "#e5484d", blue: "#3e7bfa", green: "#30a46c", yellow: "#f5c518", purple: "#8e4ec6", black: "#2a2d34", orange: "#f76b15", white: "#f2f2ee", grey: "#9aa0a6" };
+const ACCS = ["sunglasses", "headphones", "scarf", "backpack", "skateboard"];
 const SHOES = ["sneakers", "boots", "sandals", "cleats", "slippers"];
 const SHOE_HEX = { sneakers: "#f5f5f5", boots: "#f2c230", sandals: "#a0642d", cleats: "#151515", slippers: "#f49ac2" };
 const KEYS = ["c", "a", "s"];
@@ -334,10 +334,10 @@ const TX = {
     roles: { cook: "Cook", teacher: "Class Teacher", substitute: "Substitute Teacher", music: "Music Teacher", science: "Science Teacher", librarian: "Librarian", caretaker: "Caretaker", secretary: "School Secretary", firstgrader: "First Grader", second: "Second Grader", cleaner: "Cleaner", aide: "Support Worker", gymteacher: "Gym Teacher", captain: "Team Captain", monitor: "Recess Monitor" },
     loc: { kantina: "Cafeteria", klasse1: "Classroom 1", klasseC: "Classroom C", instrument: "Music Room", science: "Science Lab", library: "Library", hallway: "Hallway", reception: "Reception", garderobe: "Cloakroom", nedgarderobe: "Lower Cloakroom", toalett: "Toilets", stillerom: "Quiet Room", gym: "Gym", football: "Football Field", playground: "Playground" },
     riddle: { kantina: "the room that smells like lunch", klasse1: "the classroom with a number on the door", klasseC: "the classroom with a letter on the door", instrument: "the room full of drums and guitars", science: "the room with test tubes and goggles", library: "the place where the books sleep", hallway: "the long corridor with all the lockers", reception: "the desk by the front door", garderobe: "the place where the jackets hang", nedgarderobe: "the place where the jackets hang, down the stairs", toalett: "the place you go when you really have to go", stillerom: "the room where you have to whisper", gym: "the room with ropes hanging from the ceiling", football: "the grass with two goals", playground: "the place with the swings" },
-    colors: { red: "red", blue: "blue", green: "green", yellow: "yellow", purple: "purple", black: "black", orange: "orange" },
-    accs: { cap: "a cap", glasses: "glasses", headphones: "big headphones", scarf: "a scarf", backpack: "a backpack" },
+    colors: { red: "red", blue: "blue", green: "green", yellow: "yellow", purple: "purple", black: "black", orange: "orange", white: "white", grey: "grey" },
+    accs: { sunglasses: "sunglasses", headphones: "big headphones", scarf: "a scarf", backpack: "a backpack", skateboard: "a skateboard" },
     shoes: { sneakers: "white sneakers", boots: "yellow rain boots", sandals: "sandals", cleats: "football boots", slippers: "pink slippers" },
-    nb: { c: "Hoodie", a: "Had", s: "Shoes" },
+    nb: { c: "Sweater", a: "Had", s: "Shoes" },
     cases: {
       cake: { title: "The Last Slice of Cake", intro: "Someone stole the last slice of cake from the cafeteria fridge!", win: "{name} had the cake. Half of it is already eaten..." },
       party: { title: "The Missing Invitation", intro: "Your friend didn't invite you to their birthday party. Or did they? Someone took your invitation!", win: "{name} had your invitation. The party is on Saturday, and you're invited!" },
@@ -347,7 +347,7 @@ const TX = {
     },
     snuteWin: "Snute ate the cake! Bad dog... but such a good boy.",
     lines: {
-      hint_c: "I saw someone in a {color} hoodie sneaking around.",
+      hint_c: "I saw someone in a {color} sweater sneaking around.",
       hint_a: "The sneaky one had {acc}. I noticed it right away.",
       hint_s: "I looked at their shoes: {shoes}.",
       dog0: "I heard barking. Really loud barking!",
@@ -361,13 +361,13 @@ const TX = {
       moved_hard: "The culprit was here, but they just ran off to {riddle}!",
       noinfo: ["Hmm, I haven't seen anything strange today.", "Sorry, detective. It's just me here.", "Nope. It's been a quiet day.", "I didn't see anyone sneaky. Try somewhere else!"],
       chat: ["Hey detective! I'm just hanging out.", "Me? I've been here the whole time. Probably.", "Did you check the cafeteria? I'm hungry.", "I'm innocent! Well, I think so."],
-      gossip_c: "Psst... I'm sure the culprit wore a {color} hoodie.",
+      gossip_c: "Psst... I'm sure the culprit wore a {color} sweater.",
       gossip_a: "Psst... I heard the culprit had {acc}.",
       gossip_s: "Psst... the culprit was wearing {shoes}. I saw it myself.",
       gossip_dog: "Psst... I think I heard a dog somewhere.",
       nervous: ["W-what? I wasn't doing anything!", "Why are you looking at me like that?", "I was just sitting here. Promise.", "Oh! Hi... I didn't see you there."],
       snute: "Woof! Snute wags his tail and gives you a Snute shard. You have {n}.",
-      snute2: "Woof! Snute gives you 2 Snute shards (double, thanks to Oscar-hs). You have {n}.",
+      snute2: "Woof! Snute gives you 2 Snute shards (double, thanks to Oscar HS). You have {n}.",
       snuteGuilty: "Woof! (Snute has cake crumbs all over his nose...)",
     },
   },
@@ -431,10 +431,10 @@ const TX = {
     roles: { cook: "Kokken", teacher: "Kontaktlæreren", substitute: "Vikaren", music: "Musikklæreren", science: "Naturfaglæreren", librarian: "Bibliotekaren", caretaker: "Vaktmesteren", secretary: "Skolesekretæren", firstgrader: "Førsteklassingen", second: "Andreklassingen", cleaner: "Renholderen", aide: "Miljøarbeideren", gymteacher: "Gymlæreren", captain: "Lagkapteinen", monitor: "Inspektøren" },
     loc: { kantina: "Kantina", klasse1: "Klasserom 1", klasseC: "Klasserom C", instrument: "Musikkrommet", science: "Science lab", library: "Biblioteket", hallway: "Gangen", reception: "Resepsjonen", garderobe: "Garderoben", nedgarderobe: "Nede garderobe", toalett: "Toalettet", stillerom: "Stillerommet", gym: "Gymsalen", football: "Fotballbanen", playground: "Lekeplassen" },
     riddle: { kantina: "rommet som lukter lunsj", klasse1: "klasserommet med et tall på døra", klasseC: "klasserommet med en bokstav på døra", instrument: "rommet fullt av trommer og gitarer", science: "rommet med reagensrør og vernebriller", library: "stedet der bøkene sover", hallway: "den lange gangen med alle skapene", reception: "skranken ved inngangsdøra", garderobe: "stedet der jakkene henger", nedgarderobe: "stedet der jakkene henger, ned trappa", toalett: "stedet du går når du virkelig må", stillerom: "rommet der du må hviske", gym: "rommet med tau som henger fra taket", football: "gresset med to mål", playground: "stedet med huskene" },
-    colors: { red: "rød", blue: "blå", green: "grønn", yellow: "gul", purple: "lilla", black: "svart", orange: "oransje" },
-    accs: { cap: "caps", glasses: "briller", headphones: "store hodetelefoner", scarf: "skjerf", backpack: "ryggsekk" },
+    colors: { red: "rød", blue: "blå", green: "grønn", yellow: "gul", purple: "lilla", black: "svart", orange: "oransje", white: "hvit", grey: "grå" },
+    accs: { sunglasses: "solbriller", headphones: "store hodetelefoner", scarf: "skjerf", backpack: "ryggsekk", skateboard: "skateboard" },
     shoes: { sneakers: "hvite joggesko", boots: "gule gummistøvler", sandals: "sandaler", cleats: "fotballsko", slippers: "rosa tøfler" },
-    nb: { c: "Hettegenser", a: "Hadde", s: "Sko" },
+    nb: { c: "Genser", a: "Hadde", s: "Sko" },
     cases: {
       cake: { title: "Det siste kakestykket", intro: "Noen stjal det siste kakestykket fra kjøleskapet i kantina!", win: "{name} hadde kaka. Halvparten er allerede spist..." },
       party: { title: "Den forsvunne invitasjonen", intro: "Vennen din inviterte deg ikke til bursdagen sin. Eller gjorde de det? Noen tok invitasjonen din!", win: "{name} hadde invitasjonen din. Festen er på lørdag, og du er invitert!" },
@@ -444,7 +444,7 @@ const TX = {
     },
     snuteWin: "Snute spiste kaka! Slem hund... men for en god gutt.",
     lines: {
-      hint_c: "Jeg så noen i {color} hettegenser som snek seg rundt.",
+      hint_c: "Jeg så noen i {color} genser som snek seg rundt.",
       hint_a: "Den som snek seg hadde {acc}. Det la jeg merke til med en gang.",
       hint_s: "Jeg så på skoene deres: {shoes}.",
       dog0: "Jeg hørte bjeffing. Skikkelig høy bjeffing!",
@@ -458,19 +458,21 @@ const TX = {
       moved_hard: "Den skyldige var her, men de løp nettopp til {riddle}!",
       noinfo: ["Hmm, jeg har ikke sett noe rart i dag.", "Beklager, detektiv. Det er bare meg her.", "Nei. Det har vært en rolig dag.", "Jeg så ingen som snek seg. Prøv et annet sted!"],
       chat: ["Hei detektiv! Jeg bare henger her.", "Jeg? Jeg har vært her hele tiden. Tror jeg.", "Har du sjekket kantina? Jeg er sulten.", "Jeg er uskyldig! Tror jeg."],
-      gossip_c: "Psst... jeg er sikker på at den skyldige hadde {color} hettegenser.",
+      gossip_c: "Psst... jeg er sikker på at den skyldige hadde {color} genser.",
       gossip_a: "Psst... jeg hørte at den skyldige hadde {acc}.",
       gossip_s: "Psst... den skyldige hadde {shoes}. Jeg så det selv.",
       gossip_dog: "Psst... jeg tror jeg hørte en hund et sted.",
       nervous: ["H-hva? Jeg gjorde ingenting!", "Hvorfor ser du sånn på meg?", "Jeg bare satt her. Lover.", "Å! Hei... jeg så deg ikke."],
       snute: "Voff! Snute logrer med halen og gir deg en Snute shard. Du har {n}.",
-      snute2: "Voff! Snute gir deg 2 Snute shards (dobbelt, takket være Oscar-hs). Du har {n}.",
+      snute2: "Voff! Snute gir deg 2 Snute shards (dobbelt, takket være Oscar HS). Du har {n}.",
       snuteGuilty: "Voff! (Snute har kakesmuler over hele snuten...)",
     },
   },
 };
 
 // ---------- save ----------
+// Characters that were renamed after the first release of v2.
+const RENAMED = { "Oscar-hs": "Oscar HS", "Ms Alen": "Ms Allan" };
 const STORE = "hvem-var-det-v2";
 let save = { points: 0, shards: 0, owned: ["rookie"], selected: "rookie", lang: "en", admin: false, superSeen: false, pid: "", name: "" };
 try {
@@ -482,12 +484,14 @@ try {
     const old = JSON.parse(localStorage.getItem("hvem-var-det-v1"));
     if (old) {
       save.points = old.points || 0; save.shards = old.shards || 0; save.lang = old.lang || "en";
-      save.owned = ["rookie", ...(old.owned || []).filter(id => id !== "rookie" && !["Snute", "Markus", "Jonas"].includes(id) && CHARS.some(c => c.id === id))];
-      if (save.owned.includes(old.selected)) save.selected = old.selected;
+      save.owned = ["rookie", ...(old.owned || []).map(id => RENAMED[id] || id).filter(id => id !== "rookie" && !["Snute", "Markus", "Jonas"].includes(id) && CHARS.some(c => c.id === id))];
+      if (save.owned.includes(RENAMED[old.selected] || old.selected)) save.selected = RENAMED[old.selected] || old.selected;
     }
   }
 } catch (e) {}
 const persist = () => { try { localStorage.setItem(STORE, JSON.stringify(save)); } catch (e) {} };
+save.owned = save.owned.map(id => RENAMED[id] || id);
+save.selected = RENAMED[save.selected] || save.selected;
 // A secret id per browser, so the leaderboard can add up one player's points. It is never shown.
 if (!save.pid) {
   save.pid = window.crypto && crypto.randomUUID ? crypto.randomUUID()
@@ -524,10 +528,39 @@ const walkCost = () => power() === "xray" ? 0 : tier() === "god" ? 2 : 5;
 const attrPart = (pre, k, v) => ({ k: pre + "_" + k, [FIELD[k]]: v });
 
 // ---------- drawing ----------
+// How each suspect really looks. Clothes colour in `top` never changes; everything else in the outfit is random per case.
+const SKIN = { light: "#f6d6bf", lightbrown: "#c99067", brown: "#9a6440" };
+const HAIR = { brown: "#6b4226", black: "#1c1714", blond: "#e6c77e", ginger: "#e0913a", dark: "#2b1d14" };
+const EYES = { blue: "#3b82f6", brown: "#5b3a1e", greengrey: "#6f8f78", greyblue: "#7189a3", grey: "#8a9099", green: "#4f8f4f" };
+const LOOKS = {
+  Jakob:        { skin: "light", hair: "short", hc: "brown", eyes: "blue", earrings: true, specs: true, pencil: true },
+  Vivaan:       { skin: "brown", hair: "short", hc: "black", eyes: "brown" },
+  Syver:        { skin: "brown", hair: "curly", hc: "black", eyes: "brown", hat: "cap" },
+  Adrian:       { skin: "light", hair: "short", hc: "brown", eyes: "greengrey", sag: true },
+  Alexsander:   { skin: "light", hair: "short", hc: "brown", eyes: "brown", cheeks: true, top: "black" },
+  "Oscar HS":   { skin: "light", hair: "short", hc: "blond", eyes: "greyblue", bigEars: true, logo: true },
+  Markus:       { skin: "light", hair: "fringe", hc: "blond", eyes: "blue", baggy: true },
+  Jonas:        { skin: "light", hair: "short", hc: "blond", eyes: "grey", earrings: true, hat: "beanie" },
+  Anna:         { skin: "light", hair: "long", hc: "blond", eyes: "blue" },
+  Celine:       { skin: "light", hair: "long", hc: "brown", eyes: "brown", top: "white", lightPants: true },
+  Diana:        { skin: "light", hair: "long", hc: "ginger", eyes: "green" },
+  "Ms Allan":   { skin: "light", hair: "bob", hc: "dark", eyes: "brown", adult: true },
+  Shreysh:      { skin: "lightbrown", hair: "short", hc: "black", eyes: "brown", pencil: true },
+  Olivia:       { skin: "brown", hair: "ponytail", hc: "black", eyes: "brown" },
+  Klara:        { skin: "light", hair: "wavy", hc: "brown", eyes: "greyblue", top: "grey", headband: true },
+};
 const SKINS = ["#f2d0b1", "#e3b38f", "#c68c5a", "#8d5a3b", "#f7dcc4"];
 const HAIRS = ["#2b1d14", "#5a3a22", "#d9b56b", "#1b1b1b", "#8a4b2a"];
 const ROLE_BODY = ["#5c677d", "#6c757d", "#3d5a80", "#7f5539", "#4a5759"];
-const sigOutfit = id => { const h = hash(id); return { c: COLORS[h % 7], a: ACCS[(h >>> 4) % 5], s: SHOES[(h >>> 8) % 5] }; };
+const fixedTop = id => LOOKS[id] && LOOKS[id].top;
+// The everyday look shown outside a case: no accessories, since those are clues inside a case.
+const sigOutfit = id => { const h = hash(id); return { c: fixedTop(id) || COLORS[h % 7], a: "", s: SHOES[(h >>> 8) % 5] }; };
+function lookOf(name) {
+  const l = LOOKS[name];
+  if (l) return { ...l, skinHex: SKIN[l.skin], hairHex: HAIR[l.hc], eyeHex: EYES[l.eyes] };
+  const h = hash(name || "x");
+  return { hair: "short", skinHex: SKINS[h % 5], hairHex: HAIRS[(h >>> 3) % 5], eyeHex: "#3a2a1e" };
+}
 
 // Figures live in a 40x64 box with the feet at about y=60.
 function figure(p) {
@@ -545,26 +578,63 @@ function figure(p) {
   if (p.kind === "candy") {
     return `<circle cx="20" cy="42" r="16" fill="#ffc93c" opacity=".35"/><text x="20" y="52" font-size="26" text-anchor="middle">🍬</text>`;
   }
-  const h = hash(p.name || "x"), skin = SKINS[h % 5], hair = HAIRS[(h >>> 3) % 5];
-  const o = p.o || {}, unk = !!p.unknown;
+  const lk = lookOf(p.name), skin = lk.skinHex, hair = lk.hairHex;
+  const o = p.o || {}, unk = !!p.unknown, kid = p.kind === "kid";
   let body = unk ? "#8b93a7" : (p.body || HEX[o.c] || "#8b93a7");
   if (p.kind === "detective") body = "#a67c52";
-  const shoe = unk ? "#6b7280" : (p.kind === "kid" ? SHOE_HEX[o.s] : "#3a3a3a");
-  const a = unk || p.kind !== "kid" ? null : o.a;
+  const shoe = unk ? "#6b7280" : (kid ? SHOE_HEX[o.s] : "#3a3a3a");
+  const pants = lk.lightPants && !unk ? "#e4e2dc" : lk.adult ? "#3a3a44" : "#2d3e66";
+  const a = unk || !kid ? null : o.a;
+  const style = lk.hair;
   let s = "";
+  // behind the body
   if (a === "backpack") s += `<rect x="6" y="24" width="28" height="20" rx="5" fill="#6b4f3a" stroke="#0004" stroke-width=".8"/>`;
-  s += `<rect x="13" y="43" width="6" height="14" fill="#2d3e66"/><rect x="21" y="43" width="6" height="14" fill="#2d3e66"/>`;
+  if (style === "long") s += `<path d="M10.5 12 Q9.5 28 11.5 34 H28.5 Q30.5 28 29.5 12Z" fill="${hair}"/>`;
+  if (style === "wavy") s += `<path d="M10.5 12 Q7.5 17 10 21 Q7.5 26 10.5 30 Q9 33 11.5 35 H28.5 Q31 33 29.5 30 Q32.5 26 30 21 Q32.5 17 29.5 12Z" fill="${hair}"/>`;
+  if (style === "bob") s += `<path d="M10.5 12 Q9.5 23 11 26 H29 Q30.5 23 29.5 12Z" fill="${hair}"/>`;
+  if (style === "ponytail") s += `<path d="M27 8 Q37 10 35 27 Q32 21 28 15Z" fill="${hair}"/><circle cx="29.5" cy="10" r="1.7" fill="#e63946"/>`;
+  // legs, shoes, body
+  if (lk.sag) {
+    s += `<rect x="9" y="43" width="22" height="4" rx="1" fill="#8ec5ff"/><path d="M12 43v4M16 43v4M20 43v4M24 43v4M28 43v4" stroke="#fff" stroke-width=".8"/>`;
+    s += `<rect x="11.5" y="47" width="7.5" height="10" fill="${pants}"/><rect x="21" y="47" width="7.5" height="10" fill="${pants}"/>`;
+  } else if (lk.baggy) {
+    s += `<rect x="10.5" y="43" width="9" height="14" fill="${pants}"/><rect x="20.5" y="43" width="9" height="14" fill="${pants}"/>`;
+  } else {
+    s += `<rect x="13" y="43" width="6" height="14" fill="${pants}"/><rect x="21" y="43" width="6" height="14" fill="${pants}"/>`;
+  }
   s += `<ellipse cx="15" cy="58" rx="5.5" ry="3.2" fill="${shoe}" stroke="#0006" stroke-width=".8"/><ellipse cx="25" cy="58" rx="5.5" ry="3.2" fill="${shoe}" stroke="#0006" stroke-width=".8"/>`;
-  s += `<path d="M8 32 Q8 22 20 22 Q32 22 32 32 V46 H8Z" fill="${body}" stroke="#0005" stroke-width=".8"/>`;
-  if (p.kind === "kid" && !unk) s += `<path d="M14 23 Q20 30 26 23" fill="none" stroke="#0003" stroke-width="1.5"/>`;
+  const bodyPath = lk.baggy ? "M5.5 33 Q5.5 22 20 22 Q34.5 22 34.5 33 V48 H5.5Z" : lk.sag ? "M8 32 Q8 22 20 22 Q32 22 32 32 V44 H8Z" : "M8 32 Q8 22 20 22 Q32 22 32 32 V46 H8Z";
+  s += `<path d="${bodyPath}" fill="${body}" stroke="#0005" stroke-width=".8"/>`;
+  if (lk.adult && !unk) s += `<path d="M16 22.5 L20 34 L24 22.5" fill="none" stroke="#0004" stroke-width="1.6"/><path d="M20 34 V46" stroke="#0003" stroke-width="1"/>`;
+  else if (kid && !unk) s += `<path d="M14 23 Q20 30 26 23" fill="none" stroke="#0003" stroke-width="1.5"/>`;
+  if (lk.logo && !unk) s += `<text x="20" y="38" font-size="6" font-weight="800" text-anchor="middle" fill="${["white", "yellow", "grey"].includes(o.c) ? "#111" : "#fff"}" font-family="Arial, sans-serif">BB</text>`;
   if (p.kind === "detective") s += `<rect x="8" y="37" width="24" height="3" fill="#5a3d22"/><path d="M14 23 L20 31 L26 23" fill="none" stroke="#5a3d22" stroke-width="1.5"/>`;
-  s += `<circle cx="20" cy="14" r="9" fill="${skin}"/>`;
-  s += `<path d="M11 13 Q11 4 20 4 Q29 4 29 13 Q25 8 20 8 Q15 8 11 13Z" fill="${hair}"/>`;
-  s += `<circle cx="16.8" cy="15" r="1.2" fill="#222"/><circle cx="23.2" cy="15" r="1.2" fill="#222"/>`;
-  if (a === "cap") s += `<path d="M10.5 11 Q11 2.5 20 2.5 Q29 2.5 29.5 11Z" fill="#d62839"/><rect x="18" y="9" width="15" height="3" rx="1.5" fill="#a4161a"/>`;
-  if (a === "glasses") s += `<g fill="none" stroke="#111" stroke-width="1.3"><circle cx="16.5" cy="15" r="3"/><circle cx="23.5" cy="15" r="3"/><path d="M19.5 15h1"/></g>`;
-  if (a === "headphones") s += `<path d="M10 15 Q10 2 20 2 Q30 2 30 15" stroke="#222" stroke-width="2.5" fill="none"/><rect x="8" y="12" width="4.5" height="8" rx="2" fill="#222"/><rect x="27.5" y="12" width="4.5" height="8" rx="2" fill="#222"/>`;
   if (a === "scarf") s += `<rect x="12" y="21" width="16" height="5" rx="2.5" fill="#2a9d8f"/><rect x="22" y="24" width="4.5" height="10" rx="1.5" fill="#2a9d8f"/>`;
+  // head
+  const er = lk.bigEars ? 2.9 : 2.2;
+  s += `<circle cx="${11.2 - (er - 2.2)}" cy="15" r="${er}" fill="${skin}"/><circle cx="${28.8 + (er - 2.2)}" cy="15" r="${er}" fill="${skin}"/>`;
+  s += lk.cheeks ? `<ellipse cx="20" cy="14.5" rx="9.8" ry="9" fill="${skin}"/>` : `<circle cx="20" cy="14" r="9" fill="${skin}"/>`;
+  if (lk.earrings) s += `<circle cx="10.6" cy="18.2" r="1.1" fill="#d4af37"/><circle cx="29.4" cy="18.2" r="1.1" fill="#d4af37"/>`;
+  // hair on top
+  if (style === "short") s += `<path d="M11 13 Q11 4 20 4 Q29 4 29 13 Q25 8 20 8 Q15 8 11 13Z" fill="${hair}"/>`;
+  else if (style === "curly") s += `<g fill="${hair}"><circle cx="13" cy="9" r="3.4"/><circle cx="17" cy="6.3" r="3.6"/><circle cx="22.2" cy="6" r="3.6"/><circle cx="26.6" cy="8.6" r="3.4"/><circle cx="11.6" cy="12.4" r="2.3"/><circle cx="28.4" cy="12.4" r="2.3"/></g>`;
+  else if (style === "fringe") s += `<path d="M10.5 14 Q10 3.5 20 3.5 Q30 3.5 29.5 14 Q28 11 26 12.8 Q23 10.6 20 13 Q16.5 10.6 13.6 12.8 Q12 11 10.5 14Z" fill="${hair}"/>`;
+  else s += `<path d="M10.5 13 Q10.5 4 20 4 Q29.5 4 29.5 13 Q27 8.5 22 8.5 L20 10 Q14 8 10.5 13Z" fill="${hair}"/>`;
+  // face
+  const ey = 15.2;
+  s += `<circle cx="16.8" cy="${ey}" r="1.5" fill="${lk.eyeHex}"/><circle cx="23.2" cy="${ey}" r="1.5" fill="${lk.eyeHex}"/>`;
+  s += `<circle cx="16.8" cy="${ey}" r=".65" fill="#111"/><circle cx="23.2" cy="${ey}" r=".65" fill="#111"/>`;
+  s += `<path d="M18 19.4 Q20 20.7 22 19.4" stroke="#0006" stroke-width=".8" fill="none" stroke-linecap="round"/>`;
+  if (lk.cheeks) s += `<circle cx="13.8" cy="18.2" r="2.1" fill="#f28b82" opacity=".55"/><circle cx="26.2" cy="18.2" r="2.1" fill="#f28b82" opacity=".55"/>`;
+  if (lk.specs && a !== "sunglasses") s += `<g fill="none" stroke="#a7b0ba" stroke-width=".9"><circle cx="16.8" cy="${ey}" r="2.6"/><circle cx="23.2" cy="${ey}" r="2.6"/><path d="M19.4 ${ey}h1.2M14.2 14.8l-2.8-.6M25.8 14.8l2.8-.6"/></g>`;
+  if (a === "sunglasses") s += `<rect x="13.6" y="13.2" width="5.8" height="4" rx="1.6" fill="#111"/><rect x="20.6" y="13.2" width="5.8" height="4" rx="1.6" fill="#111"/><path d="M19.4 14.6h1.2" stroke="#111"/>`;
+  // headwear and extras
+  if (lk.hat === "cap") s += `<path d="M10.5 11 Q11 2.5 20 2.5 Q29 2.5 29.5 11Z" fill="#2f8f46"/><rect x="18" y="9" width="15" height="3" rx="1.5" fill="#23703a"/>`;
+  if (lk.hat === "beanie") s += `<path d="M10 12 Q10 1.2 20 1.2 Q30 1.2 30 12Z" fill="#1f5f3f"/><rect x="9.5" y="9.5" width="21" height="3.6" rx="1.5" fill="#174a31"/>`;
+  if (lk.headband) s += `<path d="M10.8 10.6 Q20 5 29.2 10.6" stroke="#ff4d6d" stroke-width="1.9" fill="none"/>`;
+  if (lk.pencil) s += `<g transform="rotate(35 31 9)"><rect x="30" y="2" width="2" height="9" fill="#f2c230"/><path d="M30 11 L31 13.5 L32 11Z" fill="#333"/><rect x="30" y="1" width="2" height="1.6" fill="#f49ac2"/></g>`;
+  if (a === "headphones") s += `<path d="M10 15 Q10 1.5 20 1.5 Q30 1.5 30 15" stroke="#222" stroke-width="2.5" fill="none"/><rect x="8" y="12" width="4.5" height="8" rx="2" fill="#222"/><rect x="27.5" y="12" width="4.5" height="8" rx="2" fill="#222"/>`;
+  if (a === "skateboard") s += `<g transform="rotate(-75 35 40)"><rect x="25" y="38" width="20" height="3.6" rx="1.8" fill="#7c4dff" stroke="#0005" stroke-width=".6"/><circle cx="29" cy="43" r="1.5" fill="#333"/><circle cx="41" cy="43" r="1.5" fill="#333"/></g>`;
   if (p.kind === "detective") s += `<path d="M9 9.5 H31 L28 2.5 H12Z" fill="#4a3b2a"/><rect x="6" y="9" width="28" height="3" rx="1.5" fill="#3a2d1f"/>`;
   if (unk) s += `<text x="20" y="41" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">?</text>`;
   if (p.badge) s += `<text x="33" y="9" font-size="10" text-anchor="middle">${p.badge}</text>`;
@@ -620,38 +690,48 @@ const FIG_SCALE = 0.92;
 const figAt = (x, y) => `translate(${(x - 20 * FIG_SCALE).toFixed(1)},${(y - 61 * FIG_SCALE).toFixed(1)}) scale(${FIG_SCALE})`;
 
 // ---------- case generation ----------
-function outfitFor(culprit, decoys, rest) {
+function outfitFor(culprit, others) {
   const o = {};
   const other = (base, k) => { let v; do { v = pick(LISTS[k]); } while (v === base[k]); return v; };
-  const rnd = () => ({ c: pick(COLORS), a: pick(ACCS), s: pick(SHOES) });
-  const t = culprit === "Snute" ? null : rnd();
-  if (t) o[culprit] = t;
-  // Every decoy in the hiding place differs from the culprit in exactly one thing, each in a different thing.
+  const rnd = id => ({ c: fixedTop(id) || pick(COLORS), a: pick(ACCS), s: pick(SHOES) });
   const keys = shuffle(KEYS);
-  decoys.forEach((d, i) => {
-    if (!t) { o[d] = rnd(); return; }
-    const x = { ...t }; x[keys[i]] = other(t, keys[i]); o[d] = x;
+  if (culprit === "Snute") {
+    const decoys = others.slice(0, 2), rest = others.slice(2);
+    others.forEach(id => o[id] = rnd(id));
+    return { outfits: o, keys, decoys, rest };
+  }
+  const t = rnd(culprit);
+  o[culprit] = t;
+  // Every decoy in the hiding place differs from the culprit in exactly one thing, each in a different thing.
+  // Someone who always wears the same colour can only be that decoy if their colour fits.
+  const fits = (id, k) => { const f = fixedTop(id); return !f || (k === "c" ? f !== t.c : f === t.c); };
+  const decoys = [];
+  keys.slice(0, 2).forEach(k => {
+    const id = others.find(n => !decoys.includes(n) && fits(n, k));
+    const x = { ...t };
+    x[k] = k === "c" && fixedTop(id) ? fixedTop(id) : other(t, k);
+    o[id] = x;
+    decoys.push(id);
   });
-  rest.forEach(d => {
-    const x = rnd();
-    if (t && x.c === t.c && x.a === t.a && x.s === t.s) x.c = other(t, "c");
-    o[d] = x;
+  const rest = others.filter(n => !decoys.includes(n));
+  rest.forEach(id => {
+    const x = rnd(id);
+    if (x.c === t.c && x.a === t.a && x.s === t.s) { if (fixedTop(id)) x.a = other(t, "a"); else x.c = other(t, "c"); }
+    o[id] = x;
   });
-  return { outfits: o, keys };
+  return { outfits: o, keys, decoys, rest };
 }
 
 function newCase(id) {
   const me = save.selected, hard = isHard();
   const pool = SUSPECTS.filter(n => n !== me);
   const culprit = id === "cake" && me !== "Snute" && Math.random() < 0.25 ? "Snute" : pick(pool);
-  const others = shuffle(pool.filter(n => n !== culprit));
-  const decoys = others.slice(0, 2), rest = others.slice(2);
+  const { outfits, keys, decoys, rest } = outfitFor(culprit, shuffle(pool.filter(n => n !== culprit)));
   const trail = shuffle(LOCS.filter(l => l !== "reception")).slice(0, 5);
   const people = {}; LOCS.forEach(l => people[l] = []);
   people[trail[4]] = shuffle([culprit, ...decoys]);
   const nonFinal = LOCS.filter(l => l !== trail[4]);
   rest.forEach(n => people[pick(nonFinal)].push(n));
-  const { outfits, keys } = outfitFor(culprit, decoys, rest);
   // Hard: one of the first three witnesses lies. Often the lie points straight at a decoy.
   let lie = null;
   if (hard && culprit !== "Snute") {
