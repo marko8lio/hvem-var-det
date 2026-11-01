@@ -1,0 +1,1099 @@
+<title>Hvem Var Det? 2</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Lexend:wght@400;500;700&family=Special+Elite&display=swap">
+<style>
+/* Layout: case bar on top; a drawn floor plan of the school (click a room to walk there) beside a side column with the room's people, the dialogue and the notebook. Stacks on phones, the map scrolls sideways. */
+:root {
+  --bg: #eef3fb;
+  --paper: #ffffff;
+  --ink: #14213d;
+  --muted: #5a6788;
+  --line: #cfd9ec;
+  --wall: #dfe6f3;
+  --marker: #ffc93c;
+  --marker-ink: #3a2a00;
+  --string: #e63946;
+  --good: #1f8a70;
+  --sel: #dfe9ff;
+  --common: #7d8aa8;
+  --rare: #2f6bff;
+  --legend: #d99a00;
+  --mythic: #0e9aa7;
+  --admin: #7c3aed;
+  --god: #c2187a;
+  --shadow: 0 2px 0 #14213d;
+  --f-display: "Bungee", "Arial Black", Impact, sans-serif;
+  --f-body: "Lexend", "Segoe UI", system-ui, sans-serif;
+  --f-note: "Special Elite", "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1424; --paper: #172138; --ink: #e8eef9; --muted: #9aa8c7; --line: #2a3756; --wall: #0f182b;
+    --marker: #ffcf4d; --marker-ink: #2b1f00; --string: #ff5d68; --good: #3cc69c; --sel: #22325a;
+    --common: #8f9bb8; --rare: #6b95ff; --legend: #f2b632; --mythic: #3fd2df; --admin: #a78bfa; --god: #ff4fb0; --shadow: 0 2px 0 #000;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1424; --paper: #172138; --ink: #e8eef9; --muted: #9aa8c7; --line: #2a3756; --wall: #0f182b;
+  --marker: #ffcf4d; --marker-ink: #2b1f00; --string: #ff5d68; --good: #3cc69c; --sel: #22325a;
+  --common: #8f9bb8; --rare: #6b95ff; --legend: #f2b632; --mythic: #3fd2df; --admin: #a78bfa; --god: #ff4fb0; --shadow: 0 2px 0 #000;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  background: var(--bg);
+  background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-attachment: fixed;
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 16px;
+  line-height: 1.5;
+}
+#app {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding-block: 20px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 16px;
+}
+h1, h2, h3 { font-family: var(--f-display); font-weight: 400; margin: 0; text-wrap: balance; line-height: 1.1; }
+h1 { font-size: clamp(2.4rem, 8vw, 4.6rem); }
+h2 { font-size: clamp(1.2rem, 3vw, 1.7rem); }
+h3 { font-size: 1rem; }
+p { margin: 0; }
+a { color: inherit; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--rare); outline-offset: 2px; }
+.label { font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.panel { background: var(--paper); border: 2px solid var(--ink); border-radius: 14px; box-shadow: var(--shadow); padding: 16px; min-width: 0; }
+.btn { border: 2px solid var(--ink); border-radius: 10px; background: var(--paper); padding: 10px 16px; font-weight: 700; box-shadow: var(--shadow); transition: transform .08s ease; }
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(1px); box-shadow: none; }
+.btn.primary { background: var(--marker); color: var(--marker-ink); }
+.btn.danger { background: var(--string); color: #fff; }
+.btn.magic { background: var(--mythic); color: #fff; }
+.btn.small { padding: 5px 10px; font-size: .82rem; }
+.btn[disabled] { opacity: .45; cursor: not-allowed; transform: none; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.spread { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+.perk { font-size: .82rem; color: var(--muted); }
+
+.topbar { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.brand { font-family: var(--f-display); font-size: 1.1rem; }
+.brand span { color: var(--string); }
+.brand sup { font-size: .7em; background: var(--marker); color: var(--marker-ink); border: 2px solid var(--ink); border-radius: 6px; padding: 0 5px; margin-left: 4px; }
+.lang { display: inline-flex; border: 2px solid var(--ink); border-radius: 999px; overflow: hidden; background: var(--paper); }
+.lang button { border: 0; background: transparent; padding: 5px 12px; font-weight: 700; font-size: .85rem; }
+.lang button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.stat { display: inline-flex; align-items: center; gap: 6px; background: var(--paper); border: 2px solid var(--ink); border-radius: 999px; padding: 4px 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* home */
+.hero { display: grid; gap: 12px; }
+.hero h1 span { color: var(--string); }
+.tag { font-family: var(--f-note); font-size: 1.15rem; color: var(--muted); }
+.lineup { border: 2px solid var(--ink); border-radius: 14px; overflow-x: auto; background: var(--paper); box-shadow: var(--shadow); }
+.lineup svg { display: block; min-width: 760px; width: 100%; height: auto; }
+.modes { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.mode { text-align: left; display: grid; gap: 8px; padding: 20px; border: 2px solid var(--ink); border-radius: 14px; box-shadow: var(--shadow); background: var(--paper); }
+.mode:hover { background: var(--sel); }
+.mode .big { font-family: var(--f-display); font-size: 1.7rem; }
+.mode.hard .big { color: var(--string); }
+.mode .pts { font-family: var(--f-note); }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.how { display: grid; gap: 8px; margin: 12px 0 0; padding-left: 1.2em; }
+.me { display: flex; gap: 14px; align-items: center; }
+
+/* avatars: a drawn figure inside a rarity ring */
+.av { flex: none; width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: end center; overflow: hidden; border: 3px solid var(--common); background: var(--wall); }
+.av svg { display: block; margin-bottom: -6px; }
+.av.lg { width: 84px; height: 84px; }
+.r-rare { border-color: var(--rare); } .r-legendary { border-color: var(--legend); } .r-mythic { border-color: var(--mythic); }
+.r-admin { border-color: var(--admin); } .r-god { border-color: var(--god); }
+.rar { font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--common); }
+.rar.r-rare { color: var(--rare); } .rar.r-legendary { color: var(--legend); } .rar.r-mythic { color: var(--mythic); }
+.rar.r-admin { color: var(--admin); } .rar.r-god { color: var(--god); }
+
+/* game */
+.gamehead { display: grid; gap: 10px; padding-block: 12px; }
+.clock { font-family: var(--f-display); font-size: 1.5rem; font-variant-numeric: tabular-nums; }
+.timebar { height: 12px; border: 2px solid var(--ink); border-radius: 999px; overflow: hidden; background: var(--paper); }
+.timebar > i { display: block; height: 100%; background: var(--good); transition: width .3s ease; }
+.timebar.low > i { background: var(--string); }
+.board { display: grid; grid-template-columns: minmax(0, 1.9fr) minmax(300px, 1fr); gap: 16px; align-items: start; }
+.col { display: grid; gap: 16px; min-width: 0; }
+@media (max-width: 960px) { .board { grid-template-columns: 1fr; } }
+.mapwrap { overflow-x: auto; border-radius: 10px; }
+.schoolmap { display: block; width: 100%; min-width: 680px; height: auto; user-select: none; }
+.schoolmap .floor { stroke: var(--ink); stroke-width: 2.5; transition: filter .15s; }
+.schoolmap .rm { cursor: pointer; outline: none; }
+.schoolmap .rm:hover .floor, .schoolmap .rm:focus-visible .floor { filter: brightness(1.08) saturate(1.2); stroke-width: 4; }
+.schoolmap .rm.here .floor { stroke: var(--marker); stroke-width: 6; }
+.schoolmap .lbl { font: 700 16px var(--f-body); fill: var(--ink); text-anchor: middle; }
+.schoolmap .cost { font: 500 13px var(--f-body); fill: var(--muted); text-anchor: middle; }
+.schoolmap .here .cost { fill: var(--ink); font-weight: 700; }
+.schoolmap .deco { font-size: 52px; opacity: .28; text-anchor: middle; dominant-baseline: middle; }
+.schoolmap .wall { fill: var(--wall); stroke: var(--ink); stroke-width: 3; }
+.schoolmap .door { fill: var(--ink); opacity: .35; }
+.schoolmap .fig.tk { cursor: pointer; }
+.schoolmap .fig.tk:hover { filter: drop-shadow(0 0 4px var(--marker)); }
+.schoolmap .paw { font-size: 22px; text-anchor: middle; }
+.schoolmap .secret { fill: var(--ink); opacity: .07; }
+.schoolmap .secret.on { cursor: default; }
+.walking .bob { animation: bob .28s ease-in-out infinite alternate; }
+@keyframes bob { from { transform: translateY(0); } to { transform: translateY(-4px); } }
+.speech { animation: pop .25s ease-out; transform-origin: center; transform-box: fill-box; }
+@keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
+.maphint { margin-top: 8px; font-size: .82rem; color: var(--muted); }
+
+.roomhead { display: flex; gap: 12px; align-items: center; }
+.roomicon { font-size: 2.2rem; line-height: 1; }
+.people { display: grid; gap: 8px; }
+.person { border: 2px solid var(--line); border-radius: 12px; padding: 8px 10px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; align-items: center; background: var(--bg); }
+.person.active { border-color: var(--ink); }
+.person .figbox { grid-row: span 2; width: 44px; height: 56px; display: grid; place-items: end center; }
+.person .nm { font-weight: 700; line-height: 1.2; }
+.person .role { font-size: .75rem; color: var(--muted); }
+.person .acts { grid-column: 1 / -1; }
+.tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px; }
+.t { font-size: .72rem; border: 1px solid var(--line); background: var(--paper); border-radius: 999px; padding: 1px 7px; display: inline-flex; gap: 5px; align-items: center; }
+.t.guilty { border-color: var(--string); color: var(--string); font-weight: 700; }
+.t.innocent { border-color: var(--good); color: var(--good); font-weight: 700; }
+.sw { width: 10px; height: 10px; border-radius: 50%; border: 1px solid var(--ink); display: inline-block; }
+.bubble { background: var(--paper); border: 2px solid var(--ink); border-radius: 14px; padding: 14px 16px; box-shadow: var(--shadow); font-family: var(--f-note); font-size: 1.08rem; display: grid; gap: 4px; }
+.bubble .spk { font-family: var(--f-body); font-weight: 700; font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.bubble.empty { color: var(--muted); }
+.flash { border: 2px solid var(--string); background: color-mix(in srgb, var(--string) 12%, var(--paper)); border-radius: 12px; padding: 10px 14px; font-weight: 500; }
+.flash.ok { border-color: var(--good); background: color-mix(in srgb, var(--good) 12%, var(--paper)); }
+.flash.info { border-color: var(--muted); background: var(--paper); font-family: var(--f-note); }
+.notes { display: grid; gap: 8px; margin-top: 10px; font-family: var(--f-note); }
+.note { display: grid; grid-template-columns: 28px 1fr; gap: 8px; align-items: start; padding-bottom: 8px; border-bottom: 1px dashed var(--line); }
+.note b { font-family: var(--f-display); font-weight: 400; color: var(--string); }
+.note:last-child { border-bottom: 0; }
+
+.center { display: grid; gap: 16px; justify-items: start; max-width: 720px; }
+.casecard { border-left: 8px solid var(--string); }
+.caseicon { font-size: 3rem; line-height: 1; }
+.stamp { display: inline-block; font-family: var(--f-display); font-size: 1.4rem; padding: 6px 14px; border: 4px solid var(--good); color: var(--good); border-radius: 8px; transform: rotate(-4deg); }
+.stamp.bad { border-color: var(--string); color: var(--string); }
+
+.chars { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.char { border: 2px solid var(--line); border-radius: 12px; padding: 12px; display: grid; gap: 8px; background: var(--paper); align-content: start; }
+.char.sel { border-color: var(--ink); background: var(--sel); }
+.char.locked { opacity: .6; }
+.char.locked .av svg { filter: grayscale(1) brightness(.4); }
+.power { font-size: .82rem; font-weight: 500; }
+.box { display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: center; }
+.boxart { font-size: 4rem; line-height: 1; }
+.boxart.shake { animation: shake .5s ease; }
+@keyframes shake { 0%,100%{transform:rotate(0)} 20%{transform:rotate(-12deg)} 40%{transform:rotate(10deg)} 60%{transform:rotate(-8deg)} 80%{transform:rotate(6deg)} }
+.meter { height: 10px; border-radius: 999px; background: var(--bg); border: 1px solid var(--line); overflow: hidden; }
+.meter > i { display: block; height: 100%; background: var(--god); }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<div id="app"></div>
+
+<script>
+(() => {
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const rint = n => Math.floor(Math.random() * n);
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = rint(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const hash = s => { let h = 7; for (const ch of String(s)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h; };
+
+// ---------- data ----------
+const TOP = ["kantina", "klasse1", "klasseC", "instrument", "science", "library"];
+const BOTTOM = ["reception", "garderobe", "nedgarderobe", "toalett", "stillerom", "gym"];
+const LOCS = [...TOP, "hallway", ...BOTTOM, "football", "playground"];
+const CLASSROOMS = ["klasse1", "klasseC", "instrument", "science"];
+const LOC = {
+  kantina:      { icon: "🍽️", res: "cook",        hue: "#f4a261" },
+  klasse1:      { icon: "📝", res: "teacher",     hue: "#e9c46a" },
+  klasseC:      { icon: "🔤", res: "substitute",  hue: "#e9c46a" },
+  instrument:   { icon: "🥁", res: "music",       hue: "#c77dff" },
+  science:      { icon: "🧪", res: "science",     hue: "#4cc9f0" },
+  library:      { icon: "📚", res: "librarian",   hue: "#b5838d" },
+  hallway:      { icon: "🚪", res: "caretaker",   hue: "#a9b4c8" },
+  reception:    { icon: "🛎️", res: "secretary",   hue: "#90be6d" },
+  garderobe:    { icon: "🧥", res: "firstgrader", hue: "#8ecae6" },
+  nedgarderobe: { icon: "👟", res: "second",      hue: "#219ebc" },
+  toalett:      { icon: "🚽", res: "cleaner",     hue: "#48cae4" },
+  stillerom:    { icon: "🤫", res: "aide",        hue: "#b8c0ff" },
+  gym:          { icon: "🤸", res: "gymteacher",  hue: "#f77f00" },
+  football:     { icon: "⚽", res: "captain",     hue: "#52b788" },
+  playground:   { icon: "🛝", res: "monitor",     hue: "#95d5b2" },
+};
+const ROLE_ICON = {
+  cook: "👩‍🍳", teacher: "🧑‍🏫", substitute: "📋", music: "🎸", science: "🔬", librarian: "📖", caretaker: "🔧",
+  secretary: "☎️", firstgrader: "🎈", second: "🧃", cleaner: "🧽", aide: "🧘", gymteacher: "📣", captain: "🏆", monitor: "🦺",
+};
+const SUSPECTS = ["Jakob", "Vivaan", "Syver", "Adrian", "Alexsander", "Oscar-hs", "Markus", "Jonas", "Anna", "Celine", "Diana", "Ms Alen", "Shreysh", "Olivia", "Klara"];
+const CHARS = [
+  { id: "rookie", r: "start" },
+  ...["cook", "caretaker", "firstgrader", "second", "librarian", "gymteacher", "cleaner", "aide"].map(id => ({ id, r: "common" })),
+  ...["secretary", "music", "captain", "monitor", "teacher", "science", "substitute"].map(id => ({ id, r: "rare" })),
+  ...["Jakob", "Vivaan", "Syver", "Adrian", "Alexsander", "Oscar-hs", "Anna", "Celine", "Diana", "Ms Alen", "Shreysh", "Olivia"].map(id => ({ id, r: "legendary" })),
+  { id: "Klara", r: "mythic" },
+  { id: "Markus", r: "admin" }, { id: "Jonas", r: "admin" },
+  { id: "Snute", r: "god" },
+];
+const POWER = { Jakob: "rizz", Alexsander: "class20", Celine: "friends", Klara: "mind", "Oscar-hs": "shards2", Markus: "xray", Jonas: "xray" };
+const rarityOf = id => (CHARS.find(c => c.id === id) || { r: "common" }).r;
+const COLORS = ["red", "blue", "green", "yellow", "purple", "black", "orange"];
+const HEX = { red: "#e5484d", blue: "#3e7bfa", green: "#30a46c", yellow: "#f5c518", purple: "#8e4ec6", black: "#2a2d34", orange: "#f76b15" };
+const ACCS = ["cap", "glasses", "headphones", "scarf", "backpack"];
+const SHOES = ["sneakers", "boots", "sandals", "cleats", "slippers"];
+const SHOE_HEX = { sneakers: "#f5f5f5", boots: "#f2c230", sandals: "#a0642d", cleats: "#151515", slippers: "#f49ac2" };
+const KEYS = ["c", "a", "s"];
+const LISTS = { c: COLORS, a: ACCS, s: SHOES };
+const FIELD = { c: "color", a: "acc", s: "shoes" };
+const BOX_COST = 2, DUP_SHARDS = 5, SNUTE_UNLOCK = 400, SNUTE_SUPER = 2000;
+const CASES = { cake: "🍰", party: "🎂", friend: "🫂", keys: "🔑", football: "⚽" };
+
+const TX = {
+  en: {
+    name: "Who Was It?", kicker: "Detective game · version 2", tagline: "Walk the school, ask around, and catch the culprit before the bell rings.",
+    easy: "Easy", hard: "Hard",
+    easyDesc: "Solve 3 cases to win 1 point. 6 hours per case. The suspects look more alike than before.",
+    hardDesc: "Solve 5 cases to win 2 points. Only 4 hours, clues come as riddles, some witnesses lie, and the culprit moves if you're slow. One wrong guess ends the case.",
+    play: "Play", points: "Points", shards: "Snute shards", playingAs: "Playing as", change: "Characters & mystery box", v1: "Play version 1",
+    howTitle: "How to play",
+    how: [
+      "Click a room on the map to walk there (5 min). Click a person to talk (10 min).",
+      "Witnesses give a clue about the culprit's clothes and say where they went next. After 4 places you get the last clue.",
+      "Talk to the people in the hiding place and accuse the one who matches your notebook.",
+      "In hard mode one witness lies. Compare clues from other people to find the lie.",
+      "Meet Snute, the Danish-Swedish farmdog, for Snute shards. 400 unlocks him. 2000 makes him Super-Snute. There is no max.",
+    ],
+    caseN: "Case {n} of {m}", left: "left", youAreIn: "You are in", notebook: "Notebook", mapHint: "Click a room to walk there. Click a person in your room to talk.",
+    noHints: "No clues yet. Start where it was last seen:", talk: "Talk", again: "Hear again", accuse: "Accuse", readMind: "Read mind",
+    here: "You are here", walk: "{n} min", startCase: "Start case", next: "Next case", home: "Home", retry: "Play again", quit: "Quit",
+    solved: "Case solved!", failed: "Case failed", timeUp: "Time ran out. The school day is over.",
+    wrongHard: "{name} was innocent! In hard mode one wrong guess ends the case.", wrongEasy: "{name} is innocent. You lost 30 minutes.",
+    runDone: "All cases solved!", earned1: "You earned 1 point.", earnedN: "You earned {n} points.",
+    lastSeen: "Last seen", timeLimit: "Time", hours: "{h} hours", hoursMin: "{h} h {m} min",
+    suspect: "Suspect", dog: "Danish-Swedish farmdog", unknownLook: "Talk to see them clearly",
+    tapTalk: "Click someone to talk to them, or walk to another room.",
+    footsteps: "You hear running footsteps somewhere in the school...",
+    bonus20: "Alexsander knows this classroom. +20 min!",
+    mindGuilty: "Klara reads {name}'s mind: GUILTY!", mindInnocent: "Klara reads {name}'s mind: innocent.",
+    guilty: "Guilty", innocent: "Innocent",
+    godbit: "Golden treat", godbitDesc: "A secret treat. Whoever eats it gets everything in the game.", takeGodbit: "Eat the treat",
+    adminDone: "ADMIN! You unlocked every character, including Markus, Jonas and Super-Snute.",
+    charsTitle: "Characters", box: "Mystery box",
+    boxText: "Costs 2 points. You can win every character except Markus, Jonas and Snute. Klara is extra rare. Duplicates turn into 5 Snute shards.",
+    openBox: "Open for 2 points", notEnough: "You need 2 points. Solve cases to earn more.",
+    boxGot: "You got {name}!", boxDup: "Duplicate! {name} turned into 5 Snute shards.",
+    snuteUnlocked: "Snute is unlocked! Woof!", superUnlocked: "SUPER-SNUTE! Snute can now smell where the culprit is hiding.",
+    select: "Play as", selected: "Playing", locked: "Locked", secretLocked: "Locked. Nobody knows how to get this one...", back: "Back",
+    rar: { start: "Starter", common: "Common", rare: "Rare", legendary: "Legendary", mythic: "Mythic", admin: "Admin", god: "God" },
+    perk: { start: "No special power", common: "No special power", rare: "+30 min every case", legendary: "Talking takes only 5 min", mythic: "Talking takes only 5 min", admin: "Talking takes only 5 min", god: "Talk 5 min, walk 2 min, and sniff out the next place on the trail" },
+    power: {
+      rizz: "Rizz: everyone you talk to gives you an extra clue.",
+      class20: "+20 min every time you walk into a classroom.",
+      friends: "Makes friends fast: everyone in a room tells you who they are and what they wear, without talking.",
+      mind: "Mind reading: once per case, find out if a suspect is guilty.",
+      shards2: "Double Snute shards.",
+      xray: "X-ray, flying and teleport: see everyone in every room, and moving takes 0 min.",
+      super: "Super-Snute: smells where the culprit is hiding, right from the start.",
+    },
+    snuteNeed: "{n}/400 shards to unlock. Find Snute at school, or get duplicates from boxes.",
+    superNeed: "{n}/2000 shards for Super-Snute.", superDone: "Super-Snute! {n} shards.",
+    sniff: "Snute smells the trail here", superSniff: "Super-Snute smells the culprit here",
+    rookie: "Rookie Detective",
+    roles: { cook: "Cook", teacher: "Class Teacher", substitute: "Substitute Teacher", music: "Music Teacher", science: "Science Teacher", librarian: "Librarian", caretaker: "Caretaker", secretary: "School Secretary", firstgrader: "First Grader", second: "Second Grader", cleaner: "Cleaner", aide: "Support Worker", gymteacher: "Gym Teacher", captain: "Team Captain", monitor: "Recess Monitor" },
+    loc: { kantina: "Cafeteria", klasse1: "Classroom 1", klasseC: "Classroom C", instrument: "Music Room", science: "Science Lab", library: "Library", hallway: "Hallway", reception: "Reception", garderobe: "Cloakroom", nedgarderobe: "Lower Cloakroom", toalett: "Toilets", stillerom: "Quiet Room", gym: "Gym", football: "Football Field", playground: "Playground" },
+    riddle: { kantina: "the room that smells like lunch", klasse1: "the classroom with a number on the door", klasseC: "the classroom with a letter on the door", instrument: "the room full of drums and guitars", science: "the room with test tubes and goggles", library: "the place where the books sleep", hallway: "the long corridor with all the lockers", reception: "the desk by the front door", garderobe: "the place where the jackets hang", nedgarderobe: "the place where the jackets hang, down the stairs", toalett: "the place you go when you really have to go", stillerom: "the room where you have to whisper", gym: "the room with ropes hanging from the ceiling", football: "the grass with two goals", playground: "the place with the swings" },
+    colors: { red: "red", blue: "blue", green: "green", yellow: "yellow", purple: "purple", black: "black", orange: "orange" },
+    accs: { cap: "a cap", glasses: "glasses", headphones: "big headphones", scarf: "a scarf", backpack: "a backpack" },
+    shoes: { sneakers: "white sneakers", boots: "yellow rain boots", sandals: "sandals", cleats: "football boots", slippers: "pink slippers" },
+    nb: { c: "Hoodie", a: "Had", s: "Shoes" },
+    cases: {
+      cake: { title: "The Last Slice of Cake", intro: "Someone stole the last slice of cake from the cafeteria fridge!", win: "{name} had the cake. Half of it is already eaten..." },
+      party: { title: "The Missing Invitation", intro: "Your friend didn't invite you to their birthday party. Or did they? Someone took your invitation!", win: "{name} had your invitation. The party is on Saturday, and you're invited!" },
+      friend: { title: "Where Is My Best Friend?", intro: "Your best friend is gone! Nobody has seen them since the first break.", win: "{name} was hiding your best friend to plan a surprise for you. Mystery solved!" },
+      keys: { title: "The Teacher's Keys", intro: "The teacher's keys are gone, and now nobody can open the classroom!", win: "{name} had the keys in their pocket. The classroom is open again." },
+      football: { title: "The Vanished Football", intro: "The school's brand new football has vanished!", win: "{name} was keeping the football for a secret match. It's back now." },
+    },
+    snuteWin: "Snute ate the cake! Bad dog... but such a good boy.",
+    lines: {
+      hint_c: "I saw someone in a {color} hoodie sneaking around.",
+      hint_a: "The sneaky one had {acc}. I noticed it right away.",
+      hint_s: "I looked at their shoes: {shoes}.",
+      dog0: "I heard barking. Really loud barking!",
+      dog1: "There were tiny muddy paw prints on the floor.",
+      dog2: "Something furry with short legs zoomed past me!",
+      next_easy: "Then they went to {loc}.",
+      next_hard: "Then they went to {riddle}.",
+      final_easy: "Last clue: they are hiding in {loc} right now!",
+      final_hard: "Last clue: go to {riddle}. That's where they are hiding.",
+      moved_easy: "The culprit was here, but they just ran off to {loc}!",
+      moved_hard: "The culprit was here, but they just ran off to {riddle}!",
+      noinfo: ["Hmm, I haven't seen anything strange today.", "Sorry, detective. It's just me here.", "Nope. It's been a quiet day.", "I didn't see anyone sneaky. Try somewhere else!"],
+      chat: ["Hey detective! I'm just hanging out.", "Me? I've been here the whole time. Probably.", "Did you check the cafeteria? I'm hungry.", "I'm innocent! Well, I think so."],
+      gossip_c: "Psst... I'm sure the culprit wore a {color} hoodie.",
+      gossip_a: "Psst... I heard the culprit had {acc}.",
+      gossip_s: "Psst... the culprit was wearing {shoes}. I saw it myself.",
+      gossip_dog: "Psst... I think I heard a dog somewhere.",
+      nervous: ["W-what? I wasn't doing anything!", "Why are you looking at me like that?", "I was just sitting here. Promise.", "Oh! Hi... I didn't see you there."],
+      snute: "Woof! Snute wags his tail and gives you a Snute shard. You have {n}.",
+      snute2: "Woof! Snute gives you 2 Snute shards (double, thanks to Oscar-hs). You have {n}.",
+      snuteGuilty: "Woof! (Snute has cake crumbs all over his nose...)",
+    },
+  },
+  no: {
+    name: "Hvem Var Det?", kicker: "Detektivspill · versjon 2", tagline: "Gå rundt på skolen, spør folk, og ta den skyldige før det ringer ut.",
+    easy: "Lett", hard: "Vanskelig",
+    easyDesc: "Løs 3 saker for å vinne 1 poeng. 6 timer per sak. De mistenkte ligner mer på hverandre enn før.",
+    hardDesc: "Løs 5 saker for å vinne 2 poeng. Bare 4 timer, hintene er gåter, noen vitner lyver, og tyven flytter seg hvis du er treg. Én feil gjetning avslutter saken.",
+    play: "Spill", points: "Poeng", shards: "Snute shards", playingAs: "Spiller som", change: "Karakterer og mysterieboks", v1: "Spill versjon 1",
+    howTitle: "Slik spiller du",
+    how: [
+      "Klikk på et rom på kartet for å gå dit (5 min). Klikk på en person for å snakke (10 min).",
+      "Vitner gir et hint om klærne til den skyldige og sier hvor de gikk videre. Etter 4 steder får du det siste hintet.",
+      "Snakk med folkene i gjemmestedet, og pek ut den som passer med notatboka di.",
+      "I vanskelig modus lyver ett vitne. Sammenlign med hint fra andre for å finne løgnen.",
+      "Møt Snute, den dansk-svenske gårdshunden, for Snute shards. 400 låser han opp. 2000 gjør han til Super-Snute. Det er ingen grense.",
+    ],
+    caseN: "Sak {n} av {m}", left: "igjen", youAreIn: "Du er i", notebook: "Notatbok", mapHint: "Klikk på et rom for å gå dit. Klikk på en person i rommet ditt for å snakke.",
+    noHints: "Ingen hint ennå. Start der det sist ble sett:", talk: "Snakk", again: "Hør igjen", accuse: "Pek ut", readMind: "Les tanker",
+    here: "Du er her", walk: "{n} min", startCase: "Start saken", next: "Neste sak", home: "Hjem", retry: "Spill igjen", quit: "Avslutt",
+    solved: "Saken er løst!", failed: "Saken feilet", timeUp: "Tiden er ute. Skoledagen er over.",
+    wrongHard: "{name} var uskyldig! I vanskelig modus avslutter én feil gjetning saken.", wrongEasy: "{name} er uskyldig. Du mistet 30 minutter.",
+    runDone: "Alle sakene er løst!", earned1: "Du fikk 1 poeng.", earnedN: "Du fikk {n} poeng.",
+    lastSeen: "Sist sett", timeLimit: "Tid", hours: "{h} timer", hoursMin: "{h} t {m} min",
+    suspect: "Mistenkt", dog: "Dansk-svensk gårdshund", unknownLook: "Snakk for å se dem tydelig",
+    tapTalk: "Klikk på noen for å snakke med dem, eller gå til et annet rom.",
+    footsteps: "Du hører løpende skritt et sted på skolen...",
+    bonus20: "Alexsander kjenner dette klasserommet. +20 min!",
+    mindGuilty: "Klara leser tankene til {name}: SKYLDIG!", mindInnocent: "Klara leser tankene til {name}: uskyldig.",
+    guilty: "Skyldig", innocent: "Uskyldig",
+    godbit: "Gullgodbit", godbitDesc: "En hemmelig godbit. Den som spiser den får alt i spillet.", takeGodbit: "Spis godbiten",
+    adminDone: "ADMIN! Du låste opp alle karakterene, også Markus, Jonas og Super-Snute.",
+    charsTitle: "Karakterer", box: "Mysterieboks",
+    boxText: "Koster 2 poeng. Du kan vinne alle karakterer utenom Markus, Jonas og Snute. Klara er ekstra sjelden. Duplikater blir til 5 Snute shards.",
+    openBox: "Åpne for 2 poeng", notEnough: "Du trenger 2 poeng. Løs saker for å få flere.",
+    boxGot: "Du fikk {name}!", boxDup: "Duplikat! {name} ble til 5 Snute shards.",
+    snuteUnlocked: "Snute er låst opp! Voff!", superUnlocked: "SUPER-SNUTE! Nå kan Snute lukte hvor den skyldige gjemmer seg.",
+    select: "Spill som", selected: "Spiller", locked: "Låst", secretLocked: "Låst. Ingen vet hvordan man får denne...", back: "Tilbake",
+    rar: { start: "Start", common: "Vanlig", rare: "Sjelden", legendary: "Legendarisk", mythic: "Mytisk", admin: "Admin", god: "Gud" },
+    perk: { start: "Ingen superkraft", common: "Ingen superkraft", rare: "+30 min hver sak", legendary: "Å snakke tar bare 5 min", mythic: "Å snakke tar bare 5 min", admin: "Å snakke tar bare 5 min", god: "Snakk 5 min, gå 2 min, og snus opp neste sted på sporet" },
+    power: {
+      rizz: "Rizz: alle du snakker med gir deg et ekstra hint.",
+      class20: "+20 min hver gang du går inn i et klasserom.",
+      friends: "Får venner kjapt: alle i et rom forteller hvem de er og hva de har på seg, uten at du snakker med dem.",
+      mind: "Tankelesing: én gang per sak kan du finne ut om en mistenkt er skyldig.",
+      shards2: "Doble Snute shards.",
+      xray: "Røntgensyn, flyging og teleportering: se alle i alle rom, og det tar 0 min å flytte seg.",
+      super: "Super-Snute: lukter hvor den skyldige gjemmer seg, helt fra starten.",
+    },
+    snuteNeed: "{n}/400 shards for å låse opp. Finn Snute på skolen, eller få duplikater fra bokser.",
+    superNeed: "{n}/2000 shards for Super-Snute.", superDone: "Super-Snute! {n} shards.",
+    sniff: "Snute lukter sporet her", superSniff: "Super-Snute lukter den skyldige her",
+    rookie: "Ny detektiv",
+    roles: { cook: "Kokken", teacher: "Kontaktlæreren", substitute: "Vikaren", music: "Musikklæreren", science: "Naturfaglæreren", librarian: "Bibliotekaren", caretaker: "Vaktmesteren", secretary: "Skolesekretæren", firstgrader: "Førsteklassingen", second: "Andreklassingen", cleaner: "Renholderen", aide: "Miljøarbeideren", gymteacher: "Gymlæreren", captain: "Lagkapteinen", monitor: "Inspektøren" },
+    loc: { kantina: "Kantina", klasse1: "Klasserom 1", klasseC: "Klasserom C", instrument: "Musikkrommet", science: "Science lab", library: "Biblioteket", hallway: "Gangen", reception: "Resepsjonen", garderobe: "Garderoben", nedgarderobe: "Nede garderobe", toalett: "Toalettet", stillerom: "Stillerommet", gym: "Gymsalen", football: "Fotballbanen", playground: "Lekeplassen" },
+    riddle: { kantina: "rommet som lukter lunsj", klasse1: "klasserommet med et tall på døra", klasseC: "klasserommet med en bokstav på døra", instrument: "rommet fullt av trommer og gitarer", science: "rommet med reagensrør og vernebriller", library: "stedet der bøkene sover", hallway: "den lange gangen med alle skapene", reception: "skranken ved inngangsdøra", garderobe: "stedet der jakkene henger", nedgarderobe: "stedet der jakkene henger, ned trappa", toalett: "stedet du går når du virkelig må", stillerom: "rommet der du må hviske", gym: "rommet med tau som henger fra taket", football: "gresset med to mål", playground: "stedet med huskene" },
+    colors: { red: "rød", blue: "blå", green: "grønn", yellow: "gul", purple: "lilla", black: "svart", orange: "oransje" },
+    accs: { cap: "caps", glasses: "briller", headphones: "store hodetelefoner", scarf: "skjerf", backpack: "ryggsekk" },
+    shoes: { sneakers: "hvite joggesko", boots: "gule gummistøvler", sandals: "sandaler", cleats: "fotballsko", slippers: "rosa tøfler" },
+    nb: { c: "Hettegenser", a: "Hadde", s: "Sko" },
+    cases: {
+      cake: { title: "Det siste kakestykket", intro: "Noen stjal det siste kakestykket fra kjøleskapet i kantina!", win: "{name} hadde kaka. Halvparten er allerede spist..." },
+      party: { title: "Den forsvunne invitasjonen", intro: "Vennen din inviterte deg ikke til bursdagen sin. Eller gjorde de det? Noen tok invitasjonen din!", win: "{name} hadde invitasjonen din. Festen er på lørdag, og du er invitert!" },
+      friend: { title: "Hvor er bestevennen min?", intro: "Bestevennen din er borte! Ingen har sett dem siden første friminutt.", win: "{name} gjemte bestevennen din for å planlegge en overraskelse til deg. Mysteriet er løst!" },
+      keys: { title: "Lærerens nøkler", intro: "Lærerens nøkler er borte, og nå kan ingen åpne klasserommet!", win: "{name} hadde nøklene i lomma. Klasserommet er åpent igjen." },
+      football: { title: "Den forsvunne fotballen", intro: "Skolens helt nye fotball er forsvunnet!", win: "{name} passet på fotballen til en hemmelig kamp. Nå er den tilbake." },
+    },
+    snuteWin: "Snute spiste kaka! Slem hund... men for en god gutt.",
+    lines: {
+      hint_c: "Jeg så noen i {color} hettegenser som snek seg rundt.",
+      hint_a: "Den som snek seg hadde {acc}. Det la jeg merke til med en gang.",
+      hint_s: "Jeg så på skoene deres: {shoes}.",
+      dog0: "Jeg hørte bjeffing. Skikkelig høy bjeffing!",
+      dog1: "Det var små gjørmete potespor på gulvet.",
+      dog2: "Noe lodent med korte bein suste forbi meg!",
+      next_easy: "Så gikk de til {loc}.",
+      next_hard: "Så gikk de til {riddle}.",
+      final_easy: "Siste hint: de gjemmer seg i {loc} akkurat nå!",
+      final_hard: "Siste hint: gå til {riddle}. Der gjemmer de seg.",
+      moved_easy: "Den skyldige var her, men de løp nettopp til {loc}!",
+      moved_hard: "Den skyldige var her, men de løp nettopp til {riddle}!",
+      noinfo: ["Hmm, jeg har ikke sett noe rart i dag.", "Beklager, detektiv. Det er bare meg her.", "Nei. Det har vært en rolig dag.", "Jeg så ingen som snek seg. Prøv et annet sted!"],
+      chat: ["Hei detektiv! Jeg bare henger her.", "Jeg? Jeg har vært her hele tiden. Tror jeg.", "Har du sjekket kantina? Jeg er sulten.", "Jeg er uskyldig! Tror jeg."],
+      gossip_c: "Psst... jeg er sikker på at den skyldige hadde {color} hettegenser.",
+      gossip_a: "Psst... jeg hørte at den skyldige hadde {acc}.",
+      gossip_s: "Psst... den skyldige hadde {shoes}. Jeg så det selv.",
+      gossip_dog: "Psst... jeg tror jeg hørte en hund et sted.",
+      nervous: ["H-hva? Jeg gjorde ingenting!", "Hvorfor ser du sånn på meg?", "Jeg bare satt her. Lover.", "Å! Hei... jeg så deg ikke."],
+      snute: "Voff! Snute logrer med halen og gir deg en Snute shard. Du har {n}.",
+      snute2: "Voff! Snute gir deg 2 Snute shards (dobbelt, takket være Oscar-hs). Du har {n}.",
+      snuteGuilty: "Voff! (Snute har kakesmuler over hele snuten...)",
+    },
+  },
+};
+
+// ---------- save ----------
+const STORE = "hvem-var-det-v2";
+let save = { points: 0, shards: 0, owned: ["rookie"], selected: "rookie", lang: "en", admin: false, superSeen: false };
+try {
+  const s = JSON.parse(localStorage.getItem(STORE));
+  if (s) save = Object.assign(save, s);
+  else {
+    // First visit to v2: bring points, shards and characters over from version 1.
+    // Snute, Markus and Jonas are left behind because v2 has new rules for them.
+    const old = JSON.parse(localStorage.getItem("hvem-var-det-v1"));
+    if (old) {
+      save.points = old.points || 0; save.shards = old.shards || 0; save.lang = old.lang || "en";
+      save.owned = ["rookie", ...(old.owned || []).filter(id => id !== "rookie" && !["Snute", "Markus", "Jonas"].includes(id) && CHARS.some(c => c.id === id))];
+      if (save.owned.includes(old.selected)) save.selected = old.selected;
+    }
+  }
+} catch (e) {}
+const persist = () => { try { localStorage.setItem(STORE, JSON.stringify(save)); } catch (e) {} };
+let ui = { screen: "home", run: null, result: null, flash: null, box: null };
+let walking = false;
+
+const T = () => TX[save.lang] || TX.en;
+const nameOf = id => id === "rookie" ? T().rookie : (T().roles[id] || id);
+const locName = l => T().loc[l];
+function fill(s, p) {
+  return s.replace(/\{(\w+)\}/g, (m, k) => {
+    if (k === "color") return T().colors[p.color];
+    if (k === "acc") return T().accs[p.acc];
+    if (k === "shoes") return T().shoes[p.shoes];
+    if (k === "loc") return locName(p.loc);
+    if (k === "riddle") return T().riddle[p.loc];
+    if (k === "name") return nameOf(p.name);
+    if (p[k] !== undefined) return p[k];
+    return m;
+  });
+}
+const line = p => { let s = T().lines[p.k]; if (Array.isArray(s)) s = s[p.i % s.length]; return fill(s, p); };
+const tf = (k, p = {}) => fill(T()[k], p);
+
+const cur = () => ui.run && ui.run.c;
+const isHard = () => ui.run && ui.run.mode === "hard";
+const tier = () => rarityOf(save.selected);
+const power = () => save.selected === "Snute" ? (save.shards >= SNUTE_SUPER ? "super" : "snute") : POWER[save.selected];
+const talkCost = () => ["legendary", "mythic", "admin", "god"].includes(tier()) ? 5 : 10;
+const walkCost = () => power() === "xray" ? 0 : tier() === "god" ? 2 : 5;
+const attrPart = (pre, k, v) => ({ k: pre + "_" + k, [FIELD[k]]: v });
+
+// ---------- drawing ----------
+const SKINS = ["#f2d0b1", "#e3b38f", "#c68c5a", "#8d5a3b", "#f7dcc4"];
+const HAIRS = ["#2b1d14", "#5a3a22", "#d9b56b", "#1b1b1b", "#8a4b2a"];
+const ROLE_BODY = ["#5c677d", "#6c757d", "#3d5a80", "#7f5539", "#4a5759"];
+const sigOutfit = id => { const h = hash(id); return { c: COLORS[h % 7], a: ACCS[(h >>> 4) % 5], s: SHOES[(h >>> 8) % 5] }; };
+
+// Figures live in a 40x64 box with the feet at about y=60.
+function figure(p) {
+  if (p.kind === "dog") {
+    return `<path d="M7 44 Q1 38 4 30" stroke="#fbfbf7" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <path d="M7 44 Q1 38 4 30" stroke="#0003" stroke-width="1" fill="none"/>
+      ${[9, 14, 22, 27].map(x => `<rect x="${x}" y="49" width="4" height="10" rx="1.5" fill="#fbfbf7" stroke="#0004" stroke-width=".8"/>`).join("")}
+      <ellipse cx="18" cy="46" rx="13" ry="8" fill="#fbfbf7" stroke="#0004" stroke-width=".8"/>
+      <ellipse cx="14" cy="43.5" rx="6" ry="4.5" fill="#6b3f1f"/><ellipse cx="23" cy="48" rx="3" ry="2.4" fill="#1d1d1d"/>
+      <circle cx="31" cy="37" r="7.5" fill="#fbfbf7" stroke="#0004" stroke-width=".8"/>
+      <path d="M26 32 Q23 24 29 26 Q31 29 30 33Z" fill="#6b3f1f"/>
+      <circle cx="32.5" cy="35.5" r="1.3" fill="#222"/><circle cx="38" cy="38.5" r="1.7" fill="#222"/>
+      ${p.crown ? `<text x="31" y="28" font-size="10" text-anchor="middle">👑</text>` : ""}`;
+  }
+  if (p.kind === "candy") {
+    return `<circle cx="20" cy="42" r="16" fill="#ffc93c" opacity=".35"/><text x="20" y="52" font-size="26" text-anchor="middle">🍬</text>`;
+  }
+  const h = hash(p.name || "x"), skin = SKINS[h % 5], hair = HAIRS[(h >>> 3) % 5];
+  const o = p.o || {}, unk = !!p.unknown;
+  let body = unk ? "#8b93a7" : (p.body || HEX[o.c] || "#8b93a7");
+  if (p.kind === "detective") body = "#a67c52";
+  const shoe = unk ? "#6b7280" : (p.kind === "kid" ? SHOE_HEX[o.s] : "#3a3a3a");
+  const a = unk || p.kind !== "kid" ? null : o.a;
+  let s = "";
+  if (a === "backpack") s += `<rect x="6" y="24" width="28" height="20" rx="5" fill="#6b4f3a" stroke="#0004" stroke-width=".8"/>`;
+  s += `<rect x="13" y="43" width="6" height="14" fill="#2d3e66"/><rect x="21" y="43" width="6" height="14" fill="#2d3e66"/>`;
+  s += `<ellipse cx="15" cy="58" rx="5.5" ry="3.2" fill="${shoe}" stroke="#0006" stroke-width=".8"/><ellipse cx="25" cy="58" rx="5.5" ry="3.2" fill="${shoe}" stroke="#0006" stroke-width=".8"/>`;
+  s += `<path d="M8 32 Q8 22 20 22 Q32 22 32 32 V46 H8Z" fill="${body}" stroke="#0005" stroke-width=".8"/>`;
+  if (p.kind === "kid" && !unk) s += `<path d="M14 23 Q20 30 26 23" fill="none" stroke="#0003" stroke-width="1.5"/>`;
+  if (p.kind === "detective") s += `<rect x="8" y="37" width="24" height="3" fill="#5a3d22"/><path d="M14 23 L20 31 L26 23" fill="none" stroke="#5a3d22" stroke-width="1.5"/>`;
+  s += `<circle cx="20" cy="14" r="9" fill="${skin}"/>`;
+  s += `<path d="M11 13 Q11 4 20 4 Q29 4 29 13 Q25 8 20 8 Q15 8 11 13Z" fill="${hair}"/>`;
+  s += `<circle cx="16.8" cy="15" r="1.2" fill="#222"/><circle cx="23.2" cy="15" r="1.2" fill="#222"/>`;
+  if (a === "cap") s += `<path d="M10.5 11 Q11 2.5 20 2.5 Q29 2.5 29.5 11Z" fill="#d62839"/><rect x="18" y="9" width="15" height="3" rx="1.5" fill="#a4161a"/>`;
+  if (a === "glasses") s += `<g fill="none" stroke="#111" stroke-width="1.3"><circle cx="16.5" cy="15" r="3"/><circle cx="23.5" cy="15" r="3"/><path d="M19.5 15h1"/></g>`;
+  if (a === "headphones") s += `<path d="M10 15 Q10 2 20 2 Q30 2 30 15" stroke="#222" stroke-width="2.5" fill="none"/><rect x="8" y="12" width="4.5" height="8" rx="2" fill="#222"/><rect x="27.5" y="12" width="4.5" height="8" rx="2" fill="#222"/>`;
+  if (a === "scarf") s += `<rect x="12" y="21" width="16" height="5" rx="2.5" fill="#2a9d8f"/><rect x="22" y="24" width="4.5" height="10" rx="1.5" fill="#2a9d8f"/>`;
+  if (p.kind === "detective") s += `<path d="M9 9.5 H31 L28 2.5 H12Z" fill="#4a3b2a"/><rect x="6" y="9" width="28" height="3" rx="1.5" fill="#3a2d1f"/>`;
+  if (unk) s += `<text x="20" y="41" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">?</text>`;
+  if (p.badge) s += `<text x="33" y="9" font-size="10" text-anchor="middle">${p.badge}</text>`;
+  return s;
+}
+const figSvg = (p, w) => `<svg viewBox="0 0 40 64" width="${w}" height="${Math.round(w * 1.6)}" aria-hidden="true">${figure(p)}</svg>`;
+
+function specFor(id, c) {
+  if (id === "Snute" || id === "__dog") return { kind: "dog", crown: id === "Snute" && save.shards >= SNUTE_SUPER && !c };
+  if (id === "__godbit") return { kind: "candy" };
+  if (id === "rookie") return { kind: "detective", name: "rookie" };
+  if (id.startsWith("res:")) id = LOC[id.slice(4)].res;
+  if (ROLE_ICON[id]) return { kind: "adult", name: id, body: ROLE_BODY[hash(id) % 5], badge: ROLE_ICON[id] };
+  if (c && c.outfits[id]) return { kind: "kid", name: id, o: c.outfits[id], unknown: !seen(c, id) };
+  return { kind: "kid", name: id, o: sigOutfit(id) };
+}
+const playerSpec = () => save.selected === "Snute" ? { kind: "dog", crown: save.shards >= SNUTE_SUPER } : { kind: "detective", name: save.selected };
+
+function avatar(id, cls = "") {
+  return `<div class="av r-${rarityOf(id)} ${cls}">${figSvg(specFor(id), cls === "lg" ? 52 : 34)}</div>`;
+}
+
+// ---------- school map geometry (viewBox 1200 x 680) ----------
+const GEO = (() => {
+  const g = {}, W = 880 / 6;
+  TOP.forEach((l, i) => { const x = 20 + i * W, cx = x + W / 2; g[l] = { x, y: 20, w: W, h: 250, door: { x: cx, y: 270 }, hall: { x: cx, y: 330 }, stand: { x: cx, y: 252 }, crowd: { x: cx, y: 172 }, lbl: { x: cx, y: 44 }, deco: { x: cx, y: 120 } }; });
+  BOTTOM.forEach((l, i) => { const x = 20 + i * W, cx = x + W / 2; g[l] = { x, y: 390, w: W, h: 270, door: { x: cx, y: 390 }, hall: { x: cx, y: 330 }, stand: { x: cx, y: 462 }, crowd: { x: cx, y: 592 }, lbl: { x: cx, y: 630 }, deco: { x: cx, y: 520 } }; });
+  g.hallway = { x: 20, y: 270, w: 880, h: 120, stand: { x: 300, y: 378 }, crowd: { x: 580, y: 382 }, wide: true, lbl: { x: 100, y: 300 }, deco: null };
+  g.football = { x: 930, y: 20, w: 250, h: 310, outdoor: true, stand: { x: 1055, y: 318 }, crowd: { x: 1055, y: 235 }, lbl: { x: 1055, y: 46 }, deco: { x: 1055, y: 130 } };
+  g.playground = { x: 930, y: 350, w: 250, h: 310, outdoor: true, stand: { x: 1055, y: 430 }, crowd: { x: 1055, y: 585 }, lbl: { x: 1055, y: 628 }, deco: { x: 1055, y: 492 } };
+  return g;
+})();
+const JUNCTION = { x: 1055, y: 340 };
+function legOut(l) {
+  const g = GEO[l];
+  if (l === "hallway") return [];
+  if (g.outdoor) return [JUNCTION, { x: 918, y: 340 }, { x: 900, y: 330 }];
+  return [g.door, g.hall];
+}
+function route(a, b) {
+  if (GEO[a].outdoor && GEO[b].outdoor) return [GEO[a].stand, JUNCTION, GEO[b].stand];
+  return [GEO[a].stand, ...legOut(a), ...legOut(b).slice().reverse(), GEO[b].stand];
+}
+function crowdSpots(l, n) {
+  const g = GEO[l], max = g.wide ? 12 : g.outdoor ? 6 : 4, out = [];
+  for (let i = 0; i < n; i++) {
+    const row = Math.floor(i / max), col = i % max, inRow = Math.min(max, n - row * max);
+    out.push({ x: g.crowd.x + (col - (inRow - 1) / 2) * 35, y: g.crowd.y - row * 62 });
+  }
+  return out;
+}
+const FIG_SCALE = 0.92;
+const figAt = (x, y) => `translate(${(x - 20 * FIG_SCALE).toFixed(1)},${(y - 61 * FIG_SCALE).toFixed(1)}) scale(${FIG_SCALE})`;
+
+// ---------- case generation ----------
+function outfitFor(culprit, decoys, rest) {
+  const o = {};
+  const other = (base, k) => { let v; do { v = pick(LISTS[k]); } while (v === base[k]); return v; };
+  const rnd = () => ({ c: pick(COLORS), a: pick(ACCS), s: pick(SHOES) });
+  const t = culprit === "Snute" ? null : rnd();
+  if (t) o[culprit] = t;
+  // Every decoy in the hiding place differs from the culprit in exactly one thing, each in a different thing.
+  const keys = shuffle(KEYS);
+  decoys.forEach((d, i) => {
+    if (!t) { o[d] = rnd(); return; }
+    const x = { ...t }; x[keys[i]] = other(t, keys[i]); o[d] = x;
+  });
+  rest.forEach(d => {
+    const x = rnd();
+    if (t && x.c === t.c && x.a === t.a && x.s === t.s) x.c = other(t, "c");
+    o[d] = x;
+  });
+  return { outfits: o, keys };
+}
+
+function newCase(id) {
+  const me = save.selected, hard = isHard();
+  const pool = SUSPECTS.filter(n => n !== me);
+  const culprit = id === "cake" && me !== "Snute" && Math.random() < 0.25 ? "Snute" : pick(pool);
+  const others = shuffle(pool.filter(n => n !== culprit));
+  const decoys = others.slice(0, 2), rest = others.slice(2);
+  const trail = shuffle(LOCS.filter(l => l !== "reception")).slice(0, 5);
+  const people = {}; LOCS.forEach(l => people[l] = []);
+  people[trail[4]] = shuffle([culprit, ...decoys]);
+  const nonFinal = LOCS.filter(l => l !== trail[4]);
+  rest.forEach(n => people[pick(nonFinal)].push(n));
+  const { outfits, keys } = outfitFor(culprit, decoys, rest);
+  // Hard: one of the first three witnesses lies. Often the lie points straight at a decoy.
+  let lie = null;
+  if (hard && culprit !== "Snute") {
+    const i = rint(3), k = KEYS[i], t = outfits[culprit];
+    const d = decoys[keys.indexOf(k)];
+    let v = d && Math.random() < 0.6 ? outfits[d][k] : null;
+    if (!v) do { v = pick(LISTS[k]); } while (v === t[k]);
+    lie = { i, k, v };
+  }
+  const c = {
+    id, culprit, thiefAt: trail[4], trail, people, outfits, lie,
+    rumorLocs: hard ? shuffle(LOCS.filter(l => !trail.includes(l))).slice(0, 3) : [],
+    snute: me !== "Snute" && culprit !== "Snute" && Math.random() < 0.6 ? pick(LOCS) : null,
+    leftTo: {}, nextMove: hard ? 120 : Infinity,
+    time: 0, limit: (hard ? 240 : 360) + (tier() === "rare" ? 30 : 0),
+    loc: "reception", talked: {}, met: {}, mind: {}, mindUsed: false, notes: [], said: null,
+    secret: 0, godbit: false,
+    seeds: Object.fromEntries([...SUSPECTS, ...LOCS].map(k => [k, rint(97)])),
+  };
+  meet(c);
+  return c;
+}
+
+function trailLine(c, i) {
+  const hard = isHard(), parts = [];
+  if (i < 3) {
+    if (c.culprit === "Snute") parts.push({ k: "dog" + i });
+    else {
+      const k = KEYS[i], v = c.lie && c.lie.i === i ? c.lie.v : c.outfits[c.culprit][k];
+      parts.push(attrPart("hint", k, v));
+    }
+    parts.push({ k: hard ? "next_hard" : "next_easy", loc: c.trail[i + 1] });
+  } else parts.push({ k: hard ? "final_hard" : "final_easy", loc: c.trail[4] });
+  return parts;
+}
+const truthRumor = (c, k) => c.culprit === "Snute" ? { k: "gossip_dog" } : attrPart("gossip", k, c.outfits[c.culprit][k]);
+const seen = (c, id) => !!(c.talked[id] || c.met[id] || power() === "xray");
+function meet(c) { if (power() === "friends") c.people[c.loc].forEach(n => c.met[n] = true); }
+
+// ---------- actions ----------
+function startRun(mode) {
+  const ids = mode === "hard" ? shuffle(Object.keys(CASES)) : shuffle(["cake", "party", "friend"]);
+  ui.run = { mode, ids, idx: 0, c: null };
+  ui.run.c = newCase(ids[0]);
+  ui.screen = "intro"; ui.flash = null;
+  render();
+}
+function spend(m) { cur().time += m; }
+function after() { maybeMove(); checkTime(); }
+function checkTime() {
+  const c = cur();
+  if (c.time >= c.limit) { ui.result = { ok: false, msg: "timeUp" }; ui.screen = "result"; }
+}
+function maybeMove() {
+  const c = cur();
+  while (c.time >= c.nextMove) {
+    c.nextMove += 40;
+    if (c.loc === c.thiefAt) continue;
+    const from = c.thiefAt, to = pick(LOCS.filter(l => l !== from && l !== c.loc));
+    c.people[from] = c.people[from].filter(n => n !== c.culprit);
+    c.people[to].push(c.culprit);
+    c.leftTo[from] = to;
+    delete c.leftTo[to];
+    delete c.talked["res:" + from];
+    delete c.talked["res:" + to];
+    c.thiefAt = to;
+    ui.flash = { info: true, msg: tf("footsteps") };
+  }
+}
+function travel(loc) {
+  const c = cur();
+  if (loc === c.loc) return;
+  ui.flash = null;
+  spend(walkCost());
+  if (c.talked.__dog) { delete c.talked.__dog; c.snute = Math.random() < 0.5 ? pick(LOCS.filter(l => l !== loc)) : null; }
+  c.loc = loc; c.said = null;
+  if (power() === "class20" && CLASSROOMS.includes(loc)) { c.limit += 20; ui.flash = { ok: true, msg: tf("bonus20") }; }
+  meet(c);
+  after(); render();
+}
+function walkTo(loc) {
+  const c = cur();
+  if (!c || walking || loc === c.loc) return;
+  const el = document.getElementById("player");
+  const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!el || reduce || !window.requestAnimationFrame) { travel(loc); return; }
+  const pts = route(c.loc, loc), segs = [];
+  let total = 0;
+  for (let i = 1; i < pts.length; i++) { const d = Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y); segs.push(d); total += d; }
+  const dur = Math.max(400, total / (power() === "xray" ? 2.4 : 0.85));
+  walking = true;
+  el.closest("svg").classList.add("walking");
+  const t0 = performance.now();
+  const step = now => {
+    let dist = Math.min(1, (now - t0) / dur) * total, i = 0;
+    while (i < segs.length - 1 && dist > segs[i]) { dist -= segs[i]; i++; }
+    const a = pts[i], b = pts[i + 1], f = segs[i] ? Math.min(1, dist / segs[i]) : 1;
+    el.setAttribute("transform", figAt(a.x + (b.x - a.x) * f, a.y + (b.y - a.y) * f));
+    if (now - t0 < dur) requestAnimationFrame(step);
+    else { walking = false; travel(loc); }
+  };
+  requestAnimationFrame(step);
+}
+function talk(pid) {
+  const c = cur();
+  ui.flash = null;
+  if (c.talked[pid]) { c.said = { pid, parts: c.talked[pid] }; render(); return; }
+  spend(talkCost());
+  const rizz = power() === "rizz";
+  let parts = [], tag = null;
+  if (pid.startsWith("res:")) {
+    const loc = pid.slice(4), i = c.trail.indexOf(loc);
+    if (i >= 0 && i < 4) { parts.push(...trailLine(c, i)); tag = String(i + 1); }
+    if (c.leftTo[loc]) { parts.push({ k: isHard() ? "moved_hard" : "moved_easy", loc: c.leftTo[loc] }); tag = tag || "➜"; }
+    if (!parts.length && c.rumorLocs.includes(loc)) { parts.push(truthRumor(c, c.lie ? c.lie.k : KEYS[c.seeds[loc] % 3])); tag = "?"; }
+    if (rizz) { parts.push(truthRumor(c, KEYS[c.seeds[loc] % 3])); tag = tag || "?"; }
+    if (!parts.length) parts = [{ k: "noinfo", i: c.seeds[loc] }];
+  } else if (pid === "__dog") {
+    const n = power() === "shards2" ? 2 : 1;
+    save.shards += n;
+    parts = [{ k: n === 2 ? "snute2" : "snute", n: save.shards }];
+    checkSnute(); persist();
+  } else if (pid === "Snute") {
+    parts = [{ k: "snuteGuilty" }];
+  } else {
+    if (pid === c.culprit || c.loc === c.trail[4]) parts.push({ k: "nervous", i: c.seeds[pid] });
+    else if (!rizz && c.seeds[pid] % 3 !== 0) parts.push({ k: "chat", i: c.seeds[pid] });
+    if (rizz || (!parts.length)) { parts.push(truthRumor(c, KEYS[(c.seeds[pid] / 3 | 0) % 3])); tag = "?"; }
+  }
+  c.talked[pid] = parts;
+  c.said = { pid, parts };
+  if (tag) c.notes.push({ tag, parts });
+  after(); render();
+}
+function checkSnute() {
+  if (save.shards >= SNUTE_UNLOCK && !save.owned.includes("Snute")) { save.owned.push("Snute"); ui.flash = { ok: true, msg: tf("snuteUnlocked") }; }
+  if (save.shards >= SNUTE_SUPER && !save.superSeen) { save.superSeen = true; ui.flash = { ok: true, msg: tf("superUnlocked") }; }
+}
+function accuse(name) {
+  const c = cur();
+  if (name === c.culprit) {
+    const last = ui.run.idx + 1 >= ui.run.ids.length;
+    ui.result = { ok: true, last };
+    if (last) { const n = isHard() ? 2 : 1; save.points += n; persist(); ui.result.earned = n; }
+    ui.screen = "result";
+  } else if (isHard()) {
+    ui.result = { ok: false, msg: "wrongHard", name }; ui.screen = "result";
+  } else {
+    spend(30); ui.flash = { ok: false, msg: tf("wrongEasy", { name }) }; checkTime();
+  }
+  render();
+}
+function readMind(name) {
+  const c = cur();
+  if (c.mindUsed || power() !== "mind") return;
+  c.mindUsed = true;
+  c.mind[name] = name === c.culprit;
+  ui.flash = { ok: c.mind[name], msg: tf(c.mind[name] ? "mindGuilty" : "mindInnocent", { name }) };
+  render();
+}
+function secretClick() {
+  const c = cur();
+  if (c.loc !== "gym" || c.godbit) return;
+  if (++c.secret >= 3) c.godbit = true;
+  render();
+}
+function eatGodbit() {
+  const c = cur();
+  if (!c.godbit) return;
+  c.godbit = false;
+  save.owned = CHARS.map(ch => ch.id);
+  save.shards = Math.max(save.shards, SNUTE_SUPER);
+  save.admin = true; save.superSeen = true;
+  persist();
+  ui.flash = { ok: true, msg: tf("adminDone") };
+  render();
+}
+function nextCase() {
+  ui.run.idx++; ui.run.c = newCase(ui.run.ids[ui.run.idx]);
+  ui.screen = "intro"; ui.flash = null; render();
+}
+function openBox() {
+  if (save.points < BOX_COST) return;
+  save.points -= BOX_COST;
+  const roll = Math.random();
+  const t = roll < 0.5 ? "common" : roll < 0.8 ? "rare" : roll < 0.98 ? "legendary" : "mythic";
+  const got = pick(CHARS.filter(c => c.r === t)).id;
+  let msg;
+  if (save.owned.includes(got)) {
+    save.shards += DUP_SHARDS; msg = tf("boxDup", { name: got });
+    if (save.shards >= SNUTE_UNLOCK && !save.owned.includes("Snute")) { save.owned.push("Snute"); msg += " " + tf("snuteUnlocked"); }
+  } else { save.owned.push(got); msg = tf("boxGot", { name: got }); }
+  persist();
+  ui.box = { msg, shake: true };
+  render();
+}
+function choose(id) { if (save.owned.includes(id)) { save.selected = id; persist(); render(); } }
+function setLang(l) { save.lang = l; persist(); document.documentElement.lang = l === "no" ? "no" : "en"; render(); }
+
+// ---------- views ----------
+const langToggle = () => `<div class="lang" role="group" aria-label="Language">
+  <button data-act="lang" data-v="en" aria-pressed="${save.lang === "en"}">EN</button>
+  <button data-act="lang" data-v="no" aria-pressed="${save.lang === "no"}">NO</button></div>`;
+const stats = () => `<span class="stat" title="${T().points}">⭐ ${save.points}</span><span class="stat" title="${T().shards}">🐾 ${save.shards}</span>`;
+const topbar = (extra = "") => `<div class="topbar"><div class="brand">${esc(T().name.replace("?", ""))}<span>?</span><sup>2</sup></div>
+  <div class="row">${extra}${stats()}${langToggle()}</div></div>`;
+const clock = m => { const t = 8 * 60 + m; return `${String(Math.floor(t / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`; };
+const dur = m => m % 60 ? tf("hoursMin", { h: Math.floor(m / 60), m: m % 60 }) : tf("hours", { h: m / 60 });
+const perkLines = id => {
+  const L = T(), r = rarityOf(id);
+  const p = id === "Snute" ? "super" : POWER[id];
+  return `<div class="perk">${esc(L.perk[r])}</div>${p ? `<div class="power">⚡ ${esc(L.power[p])}</div>` : ""}`;
+};
+
+function lineupSvg() {
+  // A police lineup of every suspect, with height marks on the wall.
+  const n = SUSPECTS.length, w = 60, W = n * w + 40;
+  const marks = [0, 1, 2, 3, 4].map(i => `<line x1="0" x2="${W}" y1="${30 + i * 28}" y2="${30 + i * 28}" stroke="var(--line)" stroke-width="2"/>
+    <text x="8" y="${26 + i * 28}" font-size="10" fill="var(--muted)" font-family="var(--f-body)">${170 - i * 20}</text>`).join("");
+  const figs = SUSPECTS.map((id, i) => `<g transform="translate(${30 + i * w},44) scale(1.55)">${figure(specFor(id))}</g>
+    <text x="${30 + i * w + 31}" y="160" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ink)" font-family="var(--f-body)">${esc(id)}</text>`).join("");
+  return `<svg viewBox="0 0 ${W} 172" role="img" aria-label="${esc(SUSPECTS.join(", "))}">${marks}${figs}</svg>`;
+}
+
+function homeView() {
+  const L = T();
+  return `${topbar()}
+  <section class="hero">
+    <div class="label">${L.kicker}</div>
+    <h1>${esc(L.name.replace("?", ""))}<span>?</span></h1>
+    <p class="tag">${esc(L.tagline)}</p>
+  </section>
+  <div class="lineup">${lineupSvg()}</div>
+  <div class="modes">
+    <button class="mode" data-act="start" data-v="easy"><span class="label">${L.play}</span><span class="big">${L.easy}</span><span>${esc(L.easyDesc)}</span><span class="pts">+1 ⭐</span></button>
+    <button class="mode hard" data-act="start" data-v="hard"><span class="label">${L.play}</span><span class="big">${L.hard}</span><span>${esc(L.hardDesc)}</span><span class="pts">+2 ⭐⭐</span></button>
+  </div>
+  <div class="two">
+    <div class="panel"><h3>${L.howTitle}</h3><ol class="how">${L.how.map(h => `<li>${esc(h)}</li>`).join("")}</ol></div>
+    <div class="panel" style="display:grid;gap:14px;align-content:start">
+      <span class="label">${L.playingAs}</span>
+      <div class="me">${avatar(save.selected, "lg")}<div style="display:grid;gap:2px">
+        <div style="font-weight:700;font-size:1.2rem">${esc(nameOf(save.selected))}</div>
+        <div class="rar r-${tier()}">${L.rar[tier()]}</div>${perkLines(save.selected)}</div></div>
+      <div class="row"><button class="btn primary" data-act="chars">🎁 ${L.change}</button><a class="perk" href="../">${L.v1}</a></div>
+    </div>
+  </div>`;
+}
+
+function charsView() {
+  const L = T();
+  const cards = CHARS.map(ch => {
+    const own = save.owned.includes(ch.id), sel = save.selected === ch.id;
+    let extra = "";
+    if (ch.id === "Snute") {
+      extra = !own
+        ? `<div class="meter"><i style="width:${Math.min(100, save.shards / SNUTE_UNLOCK * 100)}%"></i></div><div class="perk">${tf("snuteNeed", { n: Math.min(save.shards, SNUTE_UNLOCK) })}</div>`
+        : save.shards < SNUTE_SUPER
+          ? `<div class="meter"><i style="width:${save.shards / SNUTE_SUPER * 100}%"></i></div><div class="perk">${tf("superNeed", { n: save.shards })}</div>`
+          : `<div class="perk">👑 ${tf("superDone", { n: save.shards })}</div>`;
+    }
+    const lockTxt = ch.r === "admin" ? L.secretLocked : L.locked;
+    return `<div class="char ${sel ? "sel" : ""} ${own ? "" : "locked"}">
+      <div class="row" style="flex-wrap:nowrap">${avatar(ch.id)}<div style="min-width:0">
+        <div style="font-weight:700">${esc(nameOf(ch.id))}</div><div class="rar r-${ch.r}">${L.rar[ch.r]}</div></div></div>
+      ${perkLines(ch.id)}${extra}
+      <div>${own ? (sel ? `<span class="label">✓ ${L.selected}</span>` : `<button class="btn small" data-act="choose" data-v="${esc(ch.id)}">${L.select}</button>`) : `<span class="label">🔒 ${esc(lockTxt)}</span>`}</div>
+    </div>`;
+  }).join("");
+  const b = ui.box;
+  return `${topbar(`<button class="btn small" data-act="home">← ${L.back}</button>`)}
+  <div class="panel box">
+    <div class="boxart ${b && b.shake ? "shake" : ""}" aria-hidden="true">🎁</div>
+    <div style="display:grid;gap:10px">
+      <h2>${L.box}</h2><p>${esc(L.boxText)}</p>
+      <div class="row"><button class="btn primary" data-act="box" ${save.points < BOX_COST ? "disabled" : ""}>${L.openBox}</button>
+      ${save.points < BOX_COST ? `<span class="perk">${esc(L.notEnough)}</span>` : ""}</div>
+      ${b && b.msg ? `<div class="flash ok">${esc(b.msg)}</div>` : ""}
+    </div>
+  </div>
+  <h2>${L.charsTitle}</h2>
+  <div class="chars">${cards}</div>`;
+}
+
+function introView() {
+  const L = T(), c = cur(), cs = L.cases[c.id];
+  return `${topbar()}
+  <div class="panel casecard center">
+    <span class="label">${tf("caseN", { n: ui.run.idx + 1, m: ui.run.ids.length })} · ${isHard() ? L.hard : L.easy}</span>
+    <div class="caseicon" aria-hidden="true">${CASES[c.id]}</div>
+    <h2>${esc(cs.title)}</h2>
+    <p style="font-size:1.1rem">${esc(cs.intro)}</p>
+    <div class="row">
+      <span class="stat">🔎 ${L.lastSeen}: ${esc(locName(c.trail[0]))}</span>
+      <span class="stat">⏱ ${L.timeLimit}: ${dur(c.limit)}</span>
+    </div>
+    <div class="row"><button class="btn primary" data-act="go">${L.startCase} →</button><button class="btn" data-act="home">${L.quit}</button></div>
+  </div>`;
+}
+
+function mapSvg(c) {
+  const L = T(), xray = power() === "xray";
+  const sniffLoc = power() === "snute" ? (c.trail.find((l, i) => i < 4 && !c.talked["res:" + l]) || c.thiefAt) : null;
+  const superLoc = power() === "super" ? c.thiefAt : null;
+  let rooms = "", figs = "";
+  LOCS.forEach(l => {
+    const g = GEO[l], here = l === c.loc, hue = LOC[l].hue;
+    const fillStyle = `fill:color-mix(in srgb, ${hue} ${g.outdoor ? 45 : 30}%, var(--paper))`;
+    const label = esc(locName(l)), cost = here ? L.here : tf("walk", { n: walkCost() });
+    let extra = "";
+    if (l === "football") extra = `<rect x="${g.x + 30}" y="${g.y + 70}" width="${g.w - 60}" height="${g.h - 110}" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="2"/><line x1="${g.x + 30}" x2="${g.x + g.w - 30}" y1="${g.y + 70 + (g.h - 110) / 2}" y2="${g.y + 70 + (g.h - 110) / 2}" stroke="#fff" stroke-opacity=".7" stroke-width="2"/>`;
+    if (l === "gym") extra = `<rect class="secret ${here ? "on" : ""}" ${here ? 'data-act="secret"' : 'pointer-events="none"'} x="${g.x + g.w - 17}" y="${g.y + g.h - 17}" width="11" height="11" rx="3"/>`;
+    rooms += `<g class="rm ${here ? "here" : ""}" data-act="travel" data-v="${l}" tabindex="0" role="button" aria-label="${label}${here ? "" : `, ${cost}`}">
+      <rect class="floor" x="${g.x}" y="${g.y}" width="${g.w}" height="${g.h}" rx="${g.outdoor ? 16 : 4}" style="${fillStyle}"/>
+      ${g.deco ? `<text class="deco" x="${g.deco.x}" y="${g.deco.y}">${LOC[l].icon}</text>` : ""}
+      ${extra}
+      <text class="lbl" x="${g.lbl.x}" y="${g.lbl.y}">${l === "hallway" ? LOC[l].icon + " " : ""}${label}</text>
+      <text class="cost" x="${g.lbl.x}" y="${g.lbl.y + 18}">${esc(cost)}</text>
+      ${l === sniffLoc ? `<text class="paw" x="${g.x + g.w - 18}" y="${g.y + 26}"><title>${esc(L.sniff)}</title>🐾</text>` : ""}
+      ${l === superLoc ? `<text class="paw" x="${g.x + g.w - 18}" y="${g.y + 26}"><title>${esc(L.superSniff)}</title>👑</text>` : ""}
+    </g>`;
+    const ids = [`res:${l}`];
+    if (here || xray) { ids.push(...c.people[l]); if (c.snute === l) ids.push("__dog"); }
+    if (here && l === "gym" && c.godbit) ids.push("__godbit");
+    crowdSpots(l, ids.length).forEach((p, i) => {
+      const pid = ids[i], tk = here;
+      const nm = pid === "__dog" ? "Snute" : pid === "__godbit" ? L.godbit : pid.startsWith("res:") ? nameOf(LOC[l].res) : pid;
+      const speaking = c.said && c.said.pid === pid && here;
+      figs += `<g class="fig ${tk ? "tk" : ""}" ${tk ? `data-act="${pid === "__godbit" ? "godbit" : "talk"}" data-v="${esc(pid)}"` : 'pointer-events="none"'} transform="${figAt(p.x, p.y)}">
+        <title>${esc(nm)}</title>${figure(specFor(pid, c))}
+        ${speaking ? `<g class="speech"><rect x="22" y="-14" width="22" height="16" rx="6" fill="var(--paper)" stroke="var(--ink)" stroke-width="1.5"/><text x="33" y="-2" font-size="10" text-anchor="middle" fill="var(--ink)">💬</text></g>` : ""}
+      </g>`;
+    });
+  });
+  // Doors from the hallway into each room, and out to the yard.
+  const doors = [...TOP, ...BOTTOM].map(l => `<rect class="door" x="${GEO[l].door.x - 16}" y="${GEO[l].door.y - 4}" width="32" height="8" rx="2"/>`).join("")
+    + `<rect class="door" x="896" y="312" width="8" height="36" rx="2"/>`;
+  const st = GEO[c.loc].stand;
+  return `<svg class="schoolmap" viewBox="0 0 1200 680" role="group" aria-label="${esc(L.mapHint)}">
+    <rect class="wall" x="10" y="10" width="900" height="660" rx="16"/>
+    ${rooms}${doors}
+    <path d="M900 330 L918 340 L1055 340" stroke="var(--muted)" stroke-width="10" stroke-linecap="round" stroke-dasharray="2 14" fill="none" pointer-events="none"/>
+    ${figs}
+    <g id="player" transform="${figAt(st.x, st.y)}" pointer-events="none"><g class="bob">
+      <ellipse cx="20" cy="61" rx="15" ry="4.5" fill="var(--marker)" opacity=".85"/>${figure(playerSpec())}</g></g>
+  </svg>`;
+}
+
+function personCard(c, pid) {
+  const L = T(), talked = !!c.talked[pid], active = c.said && c.said.pid === pid;
+  let nm, role, tags = "", acts = "";
+  if (pid.startsWith("res:")) { nm = nameOf(LOC[pid.slice(4)].res); role = locName(pid.slice(4)); }
+  else if (pid === "__dog") { nm = "Snute"; role = L.dog; }
+  else if (pid === "__godbit") {
+    return `<div class="person active"><div class="figbox">${figSvg(specFor(pid), 40)}</div>
+      <div><div class="nm">🍬 ${esc(L.godbit)}</div><div class="role">${esc(L.godbitDesc)}</div></div>
+      <div class="row acts"><button class="btn small primary" data-act="godbit">${L.takeGodbit}</button></div></div>`;
+  } else {
+    nm = pid; role = pid === "Snute" ? L.dog : L.suspect;
+    if (pid !== "Snute") {
+      const o = c.outfits[pid];
+      tags = seen(c, pid)
+        ? `<div class="tags"><span class="t"><i class="sw" style="background:${HEX[o.c]}"></i>${esc(L.colors[o.c])}</span><span class="t">${esc(L.accs[o.a])}</span><span class="t">${esc(L.shoes[o.s])}</span></div>`
+        : `<div class="tags"><span class="t">? ${esc(L.unknownLook)}</span></div>`;
+    }
+    if (pid in c.mind) tags += `<div class="tags"><span class="t ${c.mind[pid] ? "guilty" : "innocent"}">🔮 ${c.mind[pid] ? L.guilty : L.innocent}</span></div>`;
+    if (seen(c, pid) || (pid === "Snute" && talked)) acts += `<button class="btn small danger" data-act="accuse" data-v="${esc(pid)}">${L.accuse}</button>`;
+    if (power() === "mind" && !c.mindUsed) acts += `<button class="btn small magic" data-act="mind" data-v="${esc(pid)}">🔮 ${L.readMind}</button>`;
+  }
+  return `<div class="person ${active ? "active" : ""}">
+    <div class="figbox">${figSvg(specFor(pid, c), 34)}</div>
+    <div style="min-width:0"><div class="nm">${esc(nm)}</div><div class="role">${esc(role)}</div>${tags}</div>
+    <div class="row acts"><button class="btn small ${talked ? "" : "primary"}" data-act="talk" data-v="${esc(pid)}">${talked ? L.again : `${L.talk} · ${talkCost()} min`}</button>${acts}</div>
+  </div>`;
+}
+
+function gameView() {
+  const L = T(), c = cur();
+  const left = c.limit - c.time, pct = Math.max(0, left / c.limit * 100);
+  const here = [`res:${c.loc}`, ...c.people[c.loc]];
+  if (c.snute === c.loc) here.push("__dog");
+  if (c.loc === "gym" && c.godbit) here.push("__godbit");
+  const speaker = c.said ? (c.said.pid.startsWith("res:") ? nameOf(LOC[c.said.pid.slice(4)].res) : c.said.pid === "__dog" ? "Snute" : c.said.pid) : "";
+  const notes = c.notes.length
+    ? c.notes.map(n => `<div class="note"><b>${esc(n.tag)}</b><div>${n.parts.map(x => esc(line(x))).join(" ")}</div></div>`).join("")
+    : `<p class="perk" style="font-family:var(--f-body)">${esc(L.noHints)} <b>${esc(locName(c.trail[0]))}</b></p>`;
+  return `${topbar(`<button class="btn small" data-act="home">${L.quit}</button>`)}
+  <div class="panel gamehead">
+    <div class="spread">
+      <div><span class="label">${tf("caseN", { n: ui.run.idx + 1, m: ui.run.ids.length })} · ${isHard() ? L.hard : L.easy}</span>
+        <h2>${CASES[c.id]} ${esc(L.cases[c.id].title)}</h2></div>
+      <div class="row">${avatar(save.selected)}<div style="text-align:right"><div class="clock">${clock(c.time)}</div><div class="perk">${dur(Math.max(0, left))} ${L.left}</div></div></div>
+    </div>
+    <div class="timebar ${pct < 25 ? "low" : ""}" role="progressbar" aria-valuemin="0" aria-valuemax="${c.limit}" aria-valuenow="${Math.max(0, left)}"><i style="width:${pct}%"></i></div>
+  </div>
+  ${ui.flash ? `<div class="flash ${ui.flash.ok ? "ok" : ui.flash.info ? "info" : ""}">${esc(ui.flash.msg)}</div>` : ""}
+  <div class="board">
+    <div class="panel" style="padding:10px">
+      <div class="mapwrap">${mapSvg(c)}</div>
+      <p class="maphint">${esc(L.mapHint)}</p>
+    </div>
+    <div class="col">
+      <div class="bubble ${c.said ? "" : "empty"}" aria-live="polite">
+        ${c.said ? `<span class="spk">${esc(speaker)}</span><span>${c.said.parts.map(x => esc(line(x))).join(" ")}</span>` : `<span>${esc(L.tapTalk)}</span>`}
+      </div>
+      <div class="panel" style="display:grid;gap:12px">
+        <div class="roomhead"><div class="roomicon" aria-hidden="true">${LOC[c.loc].icon}</div>
+          <div><span class="label">${L.youAreIn}</span><h2>${esc(locName(c.loc))}</h2></div></div>
+        <div class="people">${here.map(p => personCard(c, p)).join("")}</div>
+      </div>
+      <div class="panel"><h3>📓 ${L.notebook}</h3><div class="notes">${notes}</div></div>
+    </div>
+  </div>`;
+}
+
+function resultView() {
+  const L = T(), r = ui.result, c = cur();
+  let body;
+  if (r.ok) {
+    const win = c.culprit === "Snute" ? L.snuteWin : fill(L.cases[c.id].win, { name: c.culprit });
+    body = `<span class="stamp">${L.solved}</span>
+      <div class="me"><div class="av lg r-${rarityOf(c.culprit)}">${figSvg(c.culprit === "Snute" ? { kind: "dog" } : { kind: "kid", name: c.culprit, o: c.outfits[c.culprit] }, 52)}</div><p style="font-size:1.15rem">${esc(win)}</p></div>
+      ${r.last ? `<h2>${L.runDone}</h2><p style="font-size:1.1rem">⭐ ${r.earned === 1 ? L.earned1 : tf("earnedN", { n: r.earned })}</p>
+        <div class="row"><button class="btn primary" data-act="start" data-v="${ui.run.mode}">${L.retry}</button><button class="btn" data-act="chars">🎁 ${L.box}</button><button class="btn" data-act="home">${L.home}</button></div>`
+      : `<div class="row"><button class="btn primary" data-act="next">${L.next} →</button><button class="btn" data-act="home">${L.quit}</button></div>`}`;
+  } else {
+    body = `<span class="stamp bad">${L.failed}</span><p style="font-size:1.15rem">${esc(tf(r.msg, { name: r.name || "" }))}</p>
+      <div class="row"><button class="btn primary" data-act="start" data-v="${ui.run.mode}">${L.retry}</button><button class="btn" data-act="home">${L.home}</button></div>`;
+  }
+  return `${topbar()}<div class="panel casecard center">
+    <span class="label">${tf("caseN", { n: ui.run.idx + 1, m: ui.run.ids.length })} · ${esc(L.cases[c.id].title)}</span>${body}</div>`;
+}
+
+const app = document.getElementById("app");
+function render() {
+  const v = { home: homeView, chars: charsView, intro: introView, game: gameView, result: resultView }[ui.screen] || homeView;
+  app.innerHTML = v();
+  if (ui.box) ui.box.shake = false;
+}
+function act(el) {
+  const v = el.dataset.v;
+  switch (el.dataset.act) {
+    case "lang": setLang(v); break;
+    case "start": startRun(v); break;
+    case "go": ui.screen = "game"; render(); break;
+    case "travel": walkTo(v); break;
+    case "talk": talk(v); break;
+    case "accuse": accuse(v); break;
+    case "mind": readMind(v); break;
+    case "secret": secretClick(); break;
+    case "godbit": eatGodbit(); break;
+    case "next": nextCase(); break;
+    case "home": ui.screen = "home"; ui.run = null; ui.box = null; render(); break;
+    case "chars": ui.screen = "chars"; ui.box = null; render(); break;
+    case "box": openBox(); break;
+    case "choose": choose(v); break;
+  }
+  if (["go", "next", "start"].includes(el.dataset.act)) window.scrollTo({ top: 0, behavior: "smooth" });
+}
+app.addEventListener("click", e => {
+  const el = e.target.closest("[data-act]");
+  if (!el || el.disabled || walking) return;
+  act(el);
+});
+app.addEventListener("keydown", e => {
+  if (e.key !== "Enter" && e.key !== " ") return;
+  const el = e.target.closest && e.target.closest(".rm[data-act]");
+  if (!el || walking) return;
+  e.preventDefault();
+  act(el);
+});
+
+if (window.__TEST__) window.__TEST__.get = () => ({ ui, save, act: (a, v) => act({ dataset: { act: a, v } }) });
+window.claude?.hot?.snapshot?.(() => ({ ui }));
+function start(data) {
+  if (data && data.ui) ui = data.ui;
+  document.documentElement.lang = save.lang === "no" ? "no" : "en";
+  render();
+}
+window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+})();
+</script>
