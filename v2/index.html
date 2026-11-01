@@ -202,7 +202,7 @@ button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--rare);
 .lbtable th { text-align: left; font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 6px 10px; border-bottom: 2px solid var(--ink); }
 .lbtable td { padding: 8px 10px; border-bottom: 1px solid var(--line); }
 .lbtable .num { font-variant-numeric: tabular-nums; white-space: nowrap; }
-.lbtable tr.me td { background: color-mix(in srgb, var(--marker) 30%, var(--paper)); font-weight: 700; }
+.lbtable tr.mine td { background: color-mix(in srgb, var(--marker) 30%, var(--paper)); font-weight: 700; }
 .nameform { display: grid; gap: 6px; }
 .nameform input { font: inherit; padding: 9px 12px; border: 2px solid var(--ink); border-radius: 10px; background: var(--paper); color: var(--ink); min-width: 0; width: 14em; max-width: 100%; }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
@@ -266,7 +266,10 @@ const LISTS = { c: COLORS, a: ACCS, s: SHOES };
 const FIELD = { c: "color", a: "acc", s: "shoes" };
 const BOX_COST = 2, DUP_SHARDS = 5, SNUTE_UNLOCK = 400, SNUTE_SUPER = 2000;
 // Shared leaderboard on Supabase (see supabase/leaderboard.sql). The key is the public anon key, safe to ship.
-const LB = { url: "", key: "" };
+const LB = {
+  url: "https://mexzoldpwwakzphnovxq.supabase.co",
+  key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1leHpvbGRwd3dha3pwaG5vdnhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1NTkzODQsImV4cCI6MjEwOTEzNTM4NH0.wN5RbZIFoG5JLuvJbGCDeiOC6jS0D0iiETQNGiGTo0g",
+};
 const lbOn = () => !!(LB.url && LB.key);
 const CASES = { cake: "🍰", party: "🎂", friend: "🫂", keys: "🔑", football: "⚽" };
 
@@ -1145,7 +1148,7 @@ function leadersView() {
       body = `<div class="tablewrap"><table class="lbtable"><thead><tr><th>#</th><th>${L.colName}</th>${head}</tr></thead><tbody>${rows.map((x, i) => {
         const me = save.name && x.name === save.name;
         const cells = tab === "points" ? `<td class="num">⭐ ${x.points}</td>` : `<td class="num">${esc(dur(x.minutes))}</td><td>${esc(x.character ? nameOf(x.character) : "")}</td>`;
-        return `<tr class="${me ? "me" : ""}"><td class="num">${i < 3 ? ["🥇", "🥈", "🥉"][i] : i + 1}</td><td>${esc(x.name)}${me ? ` <span class="label">(${L.lbYou})</span>` : ""}</td>${cells}</tr>`;
+        return `<tr class="${me ? "mine" : ""}"><td class="num">${i < 3 ? ["🥇", "🥈", "🥉"][i] : i + 1}</td><td>${esc(x.name)}${me ? ` <span class="label">(${L.lbYou})</span>` : ""}</td>${cells}</tr>`;
       }).join("")}</tbody></table></div>${tab === "points" ? "" : `<p class="perk">${esc(L.lbFastNote)}</p>`}`;
     }
   }
