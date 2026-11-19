@@ -91,3 +91,33 @@ revoke all on function public.record_run(uuid, text, text, int, text) from publi
 revoke all on function public.set_name(uuid, text) from public;
 grant execute on function public.record_run(uuid, text, text, int, text) to anon, authenticated;
 grant execute on function public.set_name(uuid, text) to anon, authenticated;
+
+-- ---------- Snute shards and Christmas stars (added for the Christmas event) ----------
+alter table public.players add column if not exists shards int not null default 0;
+alter table public.players add column if not exists stars int not null default 0;
+
+create or replace view public.leaderboard_shards as
+  select name, shards, updated_at from public.players where shards > 0;
+create or replace view public.leaderboard_stars as
+  select name, stars, updated_at from public.players where stars > 0;
+grant select on public.leaderboard_shards, public.leaderboard_stars to anon, authenticated;
+
+-- Called by the game after each solved case. Numbers only ever go up.
+create or replace function public.sync_stats(p_id uuid, p_name text, p_shards int, p_stars int)
+returns void
+language plpgsql security definer set search_path = public as $$
+declare clean text := public.clean_name(p_name);
+begin
+  if char_length(clean) < 2 then raise exception 'name too short'; end if;
+  if p_shards < 0 or p_stars < 0 or p_shards > 1000000 or p_stars > 100000 then raise exception 'impossible numbers'; end if;
+  insert into public.players (id, name, points, shards, stars)
+  values (p_id, clean, 0, p_shards, p_stars)
+  on conflict (id) do update
+    set name = excluded.name,
+        shards = greatest(public.players.shards, excluded.shards),
+        stars = greatest(public.players.stars, excluded.stars),
+        updated_at = now();
+end;
+$$;
+revoke all on function public.sync_stats(uuid, text, int, int) from public;
+grant execute on function public.sync_stats(uuid, text, int, int) to anon, authenticated;

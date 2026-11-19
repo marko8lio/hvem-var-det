@@ -23,6 +23,7 @@
   --mythic: #0e9aa7;
   --admin: #7c3aed;
   --god: #c2187a;
+  --event: #c1121f;
   --shadow: 0 2px 0 #14213d;
   --f-display: "Bungee", "Arial Black", Impact, sans-serif;
   --f-body: "Lexend", "Segoe UI", system-ui, sans-serif;
@@ -32,14 +33,14 @@
   :root:not([data-theme="light"]) {
     --bg: #0d1424; --paper: #172138; --ink: #e8eef9; --muted: #9aa8c7; --line: #2a3756; --wall: #0f182b;
     --marker: #ffcf4d; --marker-ink: #2b1f00; --string: #ff5d68; --good: #3cc69c; --sel: #22325a;
-    --common: #8f9bb8; --rare: #6b95ff; --legend: #f2b632; --mythic: #3fd2df; --admin: #a78bfa; --god: #ff4fb0; --shadow: 0 2px 0 #000;
+    --common: #8f9bb8; --rare: #6b95ff; --legend: #f2b632; --mythic: #3fd2df; --admin: #a78bfa; --god: #ff4fb0; --event: #ff5c6c; --shadow: 0 2px 0 #000;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #0d1424; --paper: #172138; --ink: #e8eef9; --muted: #9aa8c7; --line: #2a3756; --wall: #0f182b;
   --marker: #ffcf4d; --marker-ink: #2b1f00; --string: #ff5d68; --good: #3cc69c; --sel: #22325a;
-  --common: #8f9bb8; --rare: #6b95ff; --legend: #f2b632; --mythic: #3fd2df; --admin: #a78bfa; --god: #ff4fb0; --shadow: 0 2px 0 #000;
+  --common: #8f9bb8; --rare: #6b95ff; --legend: #f2b632; --mythic: #3fd2df; --admin: #a78bfa; --god: #ff4fb0; --event: #ff5c6c; --shadow: 0 2px 0 #000;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -114,10 +115,10 @@ button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--rare);
 .av svg { display: block; margin-bottom: -6px; }
 .av.lg { width: 84px; height: 84px; }
 .r-rare { border-color: var(--rare); } .r-legendary { border-color: var(--legend); } .r-mythic { border-color: var(--mythic); }
-.r-admin { border-color: var(--admin); } .r-god { border-color: var(--god); }
+.r-admin { border-color: var(--admin); } .r-god { border-color: var(--god); } .r-event { border-color: var(--event); } .av.r-event { border-style: dashed; }
 .rar { font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--common); }
 .rar.r-rare { color: var(--rare); } .rar.r-legendary { color: var(--legend); } .rar.r-mythic { color: var(--mythic); }
-.rar.r-admin { color: var(--admin); } .rar.r-god { color: var(--god); }
+.rar.r-admin { color: var(--admin); } .rar.r-god { color: var(--god); } .rar.r-event { color: var(--event); }
 
 /* game */
 .gamehead { display: grid; gap: 10px; padding-block: 12px; }
@@ -205,6 +206,20 @@ button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--rare);
 .lbtable tr.mine td { background: color-mix(in srgb, var(--marker) 30%, var(--paper)); font-weight: 700; }
 .nameform { display: grid; gap: 6px; }
 .nameform input { font: inherit; padding: 9px 12px; border: 2px solid var(--ink); border-radius: 10px; background: var(--paper); color: var(--ink); min-width: 0; width: 14em; max-width: 100%; }
+.xmas { border: 2px solid var(--event); border-radius: 14px; padding: 12px 16px; background: color-mix(in srgb, var(--event) 10%, var(--paper)); font-weight: 500; box-shadow: var(--shadow); }
+.elves { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.elves button[aria-pressed="true"] { background: var(--marker); color: var(--marker-ink); }
+.snowwrap { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; background: #0b1220b3;
+  padding-block: 16px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.snowbox { width: min(560px, 100%); display: grid; gap: 12px; }
+.arena { position: relative; height: 260px; border: 2px solid var(--ink); border-radius: 12px; overflow: hidden;
+  background: linear-gradient(color-mix(in srgb, #8ecae6 45%, var(--paper)), color-mix(in srgb, #ffffff 80%, var(--paper))); }
+.arena .foe { position: absolute; right: 12px; bottom: 6px; }
+.arena .meimg { position: absolute; left: 12px; bottom: 6px; }
+.snowball { position: absolute; transform: translate(-50%, -50%); border: 2px solid var(--ink); border-radius: 999px; background: #fff; color: #14213d;
+  font-weight: 800; padding: 10px 14px; box-shadow: var(--shadow); }
+.snowball:active { transform: translate(-50%, -48%); }
+.snowdone { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 16px; gap: 10px; align-content: center; }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 
@@ -249,12 +264,23 @@ const CHARS = [
   { id: "rookie", r: "start" },
   ...["cook", "caretaker", "firstgrader", "second", "librarian", "gymteacher", "cleaner", "aide"].map(id => ({ id, r: "common" })),
   ...["secretary", "music", "captain", "monitor", "teacher", "science", "substitute"].map(id => ({ id, r: "rare" })),
-  ...["Jakob", "Vivaan", "Syver", "Adrian", "Alexsander", "Oscar HS", "Anna", "Celine", "Diana", "Ms Allan", "Shreysh", "Olivia"].map(id => ({ id, r: "legendary" })),
-  { id: "Klara", r: "mythic" },
+  ...["Jakob", "Vivaan", "Syver", "Alexsander", "Oscar HS", "Anna", "Celine", "Diana", "Ms Allan", "Shreysh", "Olivia"].map(id => ({ id, r: "legendary" })),
+  { id: "Adrian", r: "mythic" }, { id: "Klara", r: "mythic" },
+  ...["snowman", "santa", "elves", "rampenisse", "juletre"].map(id => ({ id, r: "event" })),
   { id: "Markus", r: "admin" }, { id: "Jonas", r: "admin" },
   { id: "Snute", r: "god" },
 ];
-const POWER = { Jakob: "rizz", Alexsander: "class20", Celine: "friends", Klara: "mind", "Oscar HS": "shards2", Markus: "xray", Jonas: "xray" };
+// Powers per character. Markus and Jonas have every power in the game.
+const ALL_POWERS = ["xray", "rizz", "class20", "friends", "mind", "shards2", "fart", "snow", "gifts", "elves", "notime", "stars2", "super"];
+const POWERS = {
+  Jakob: ["rizz"], Alexsander: ["class20"], Celine: ["friends"], Klara: ["mind"], "Oscar HS": ["shards2"], Adrian: ["fart"],
+  snowman: ["snow"], santa: ["gifts"], elves: ["elves"], rampenisse: ["notime"], juletre: ["stars2"],
+  Markus: ALL_POWERS, Jonas: ALL_POWERS,
+};
+const EVENT_KIND = { snowman: "snowman", santa: "santa", elves: "elf", rampenisse: "rampe", juletre: "tree" };
+// The Christmas event runs until 1 January (Norwegian time). Event characters can only be won while it runs.
+const EVENT_END = new Date("2027-01-01T00:00:00+01:00").getTime();
+const eventOn = () => Date.now() < EVENT_END;
 const rarityOf = id => (CHARS.find(c => c.id === id) || { r: "common" }).r;
 const COLORS = ["red", "blue", "green", "yellow", "purple", "black", "orange", "white", "grey"];
 const HEX = { red: "#e5484d", blue: "#3e7bfa", green: "#30a46c", yellow: "#f5c518", purple: "#8e4ec6", black: "#2a2d34", orange: "#f76b15", white: "#f2f2ee", grey: "#9aa0a6" };
@@ -288,6 +314,14 @@ const TX = {
       "In hard mode one witness lies. Compare clues from other people to find the lie.",
       "Meet Snute, the Danish-Swedish farmdog, for Snute shards. 400 unlocks him. 2000 makes him Super-Snute. There is no max.",
     ],
+    stars: "Christmas stars", eventBanner: "🎄 Christmas event until 1 January! Every solved case gives Christmas stars, and every mystery box has a 1 in 200 chance of an event character.",
+    eventLocked: "1 in 200 in the mystery box, only during the Christmas event", eventOver: "The Christmas event is over",
+    starsEarned: "+{n} Christmas stars", elf: "Elf {n}",
+    fart: "Fart", fartFlash: "Adrian farted! Everyone in the room holds their nose and tells the truth.",
+    snowBtn: "Snowball", snowTitle: "Snowball fight!", snowHelp: "Click the snowball as fast as you can. Hit first, and the fight starts. First to 3 hits wins.",
+    throwBtn: "Throw!", snowYou: "You", snowWin: "You won the snowball fight! +1 point", snowLose: "{name} won the snowball fight. Better luck next case!", snowBack: "Back to the case",
+    giftBtn: "Present ({n} left)", notCulprit: "Not the culprit",
+    lbShards: "Snute shards", lbStars: "Christmas stars", colShards: "Shards", colStars: "Stars",
     leaders: "Leaderboard", lbPoints: "Most points", lbEasy: "Fastest · Easy", lbHard: "Fastest · Hard",
     lbLoading: "Loading the leaderboard...", lbError: "Couldn't reach the leaderboard. Check your internet and try again.",
     lbEmpty: "Nobody here yet. Finish a run to be the first!", lbRetry: "Try again",
@@ -311,13 +345,13 @@ const TX = {
     godbit: "Golden treat", godbitDesc: "A secret treat. Whoever eats it gets everything in the game.", takeGodbit: "Eat the treat",
     adminDone: "ADMIN! You unlocked every character, including Markus, Jonas and Super-Snute.",
     charsTitle: "Characters", box: "Mystery box",
-    boxText: "Costs 2 points. You can win every character except Markus, Jonas and Snute. Klara is extra rare. Duplicates turn into 5 Snute shards.",
+    boxText: "Costs 2 points. You can win every character except Markus, Jonas and Snute. Adrian and Klara are extra rare. Event characters are the rarest: 1 in 200, only during an event. Duplicates turn into 5 Snute shards.",
     openBox: "Open for 2 points", notEnough: "You need 2 points. Solve cases to earn more.",
     boxGot: "You got {name}!", boxDup: "Duplicate! {name} turned into 5 Snute shards.",
     snuteUnlocked: "Snute is unlocked! Woof!", superUnlocked: "SUPER-SNUTE! Snute can now smell where the culprit is hiding.",
     select: "Play as", selected: "Playing", locked: "Locked", secretLocked: "Locked. Nobody knows how to get this one...", back: "Back",
-    rar: { start: "Starter", common: "Common", rare: "Rare", legendary: "Legendary", mythic: "Mythic", admin: "Admin", god: "God" },
-    perk: { start: "No special power", common: "No special power", rare: "+30 min every case", legendary: "Talking takes only 5 min", mythic: "Talking takes only 5 min", admin: "Talking takes only 5 min", god: "Talk 5 min, walk 2 min, and sniff out the next place on the trail" },
+    rar: { start: "Starter", common: "Common", rare: "Rare", legendary: "Legendary", mythic: "Mythic", event: "Event", admin: "Admin", god: "God" },
+    perk: { start: "No special power", common: "No special power", rare: "+30 min every case", legendary: "Talking takes only 5 min", mythic: "Talking takes only 5 min", event: "Talking takes only 5 min", admin: "Talking takes only 5 min", god: "Talk 5 min, walk 2 min, and sniff out the next place on the trail" },
     power: {
       rizz: "Rizz: everyone you talk to gives you an extra clue.",
       class20: "+20 min when you walk into a classroom, up to 3 times per case.",
@@ -326,14 +360,21 @@ const TX = {
       shards2: "Double Snute shards.",
       xray: "X-ray, flying and teleport: see everyone in every room, and moving takes 0 min.",
       super: "Super-Snute: smells where the culprit is hiding, right from the start.",
+      fart: "Fart: once per case, everyone in the room tells you a clue that is guaranteed true.",
+      snow: "Snowball fight: once per case. Hit 3 times before the other one does, and win 1 point.",
+      gifts: "Presents: 3 per case. A happy person tells you one suspect who is NOT the culprit.",
+      elves: "Two elves: two figures that walk and talk on their own, in the time of one.",
+      notime: "Never runs out of time.",
+      stars2: "Double Christmas stars.",
+      all: "Has every power in the game, including the event powers.",
     },
     snuteNeed: "{n}/400 shards to unlock. Find Snute at school, or get duplicates from boxes.",
     superNeed: "{n}/2000 shards for Super-Snute.", superDone: "Super-Snute! {n} shards.",
     sniff: "Snute smells the trail here", superSniff: "Super-Snute smells the culprit here",
     rookie: "Rookie Detective",
-    roles: { cook: "Cook", teacher: "Class Teacher", substitute: "Substitute Teacher", music: "Music Teacher", science: "Science Teacher", librarian: "Librarian", caretaker: "Caretaker", secretary: "School Secretary", firstgrader: "First Grader", second: "Second Grader", cleaner: "Cleaner", aide: "Support Worker", gymteacher: "Gym Teacher", captain: "Team Captain", monitor: "Recess Monitor" },
-    loc: { kantina: "Cafeteria", klasse1: "Classroom 1", klasseC: "Classroom C", instrument: "Music Room", science: "Science Lab", library: "Library", hallway: "Hallway", reception: "Reception", garderobe: "Cloakroom", nedgarderobe: "Lower Cloakroom", toalett: "Toilets", stillerom: "Quiet Room", gym: "Gym", football: "Football Field", playground: "Playground" },
-    riddle: { kantina: "the room that smells like lunch", klasse1: "the classroom with a number on the door", klasseC: "the classroom with a letter on the door", instrument: "the room full of drums and guitars", science: "the room with test tubes and goggles", library: "the place where the books sleep", hallway: "the long corridor with all the lockers", reception: "the desk by the front door", garderobe: "the place where the jackets hang", nedgarderobe: "the place where the jackets hang, down the stairs", toalett: "the place you go when you really have to go", stillerom: "the room where you have to whisper", gym: "the room with ropes hanging from the ceiling", football: "the grass with two goals", playground: "the place with the swings" },
+    roles: { cook: "Cook", teacher: "Class Teacher", substitute: "Substitute Teacher", music: "Music Teacher", science: "Science Teacher", librarian: "Librarian", caretaker: "Caretaker", secretary: "School Secretary", firstgrader: "First Grader", second: "Second Grader", cleaner: "Cleaner", aide: "Support Worker", gymteacher: "Gym Teacher", captain: "Team Captain", monitor: "Recess Monitor", snowman: "Snowman", santa: "Santa", elves: "The Elves", rampenisse: "Rampenissen", juletre: "Christmas Tree" },
+    loc: { kantina: "Cafeteria", klasse1: "Classroom A", klasseC: "Classroom C", instrument: "Music Room", science: "Science Lab", library: "Library", hallway: "Hallway", reception: "Reception", garderobe: "Cloakroom", nedgarderobe: "Lower Cloakroom", toalett: "Toilets", stillerom: "Quiet Room", gym: "Gym", football: "Football Field", playground: "Playground" },
+    riddle: { kantina: "the room that smells like lunch", klasse1: "the classroom that comes first in the alphabet", klasseC: "the classroom with the third letter on the door", instrument: "the room full of drums and guitars", science: "the room with test tubes and goggles", library: "the place where the books sleep", hallway: "the long corridor with all the lockers", reception: "the desk by the front door", garderobe: "the place where the jackets hang", nedgarderobe: "the place where the jackets hang, down the stairs", toalett: "the place you go when you really have to go", stillerom: "the room where you have to whisper", gym: "the room with ropes hanging from the ceiling", football: "the grass with two goals", playground: "the place with the swings" },
     colors: { red: "red", blue: "blue", green: "green", yellow: "yellow", purple: "purple", black: "black", orange: "orange", white: "white", grey: "grey" },
     accs: { sunglasses: "sunglasses", headphones: "big headphones", scarf: "a scarf", backpack: "a backpack", skateboard: "a skateboard" },
     shoes: { sneakers: "white sneakers", boots: "yellow rain boots", sandals: "sandals", cleats: "football boots", slippers: "pink slippers" },
@@ -369,6 +410,9 @@ const TX = {
       snute: "Woof! Snute wags his tail and gives you a Snute shard. You have {n}.",
       snute2: "Woof! Snute gives you 2 Snute shards (double, thanks to Oscar HS). You have {n}.",
       snuteGuilty: "Woof! (Snute has cake crumbs all over his nose...)",
+      by: "{who}:",
+      gift: "{who} opens the present and smiles: “{name} didn't do it!”",
+      giftNone: "Thank you for the present! But I don't know anything.",
     },
   },
   no: {
@@ -385,6 +429,14 @@ const TX = {
       "I vanskelig modus lyver ett vitne. Sammenlign med hint fra andre for å finne løgnen.",
       "Møt Snute, den dansk-svenske gårdshunden, for Snute shards. 400 låser han opp. 2000 gjør han til Super-Snute. Det er ingen grense.",
     ],
+    stars: "Julestjerner", eventBanner: "🎄 Juleevent til 1. januar! Hver løste sak gir julestjerner, og hver mysterieboks har 1 av 200 sjanse for en event-karakter.",
+    eventLocked: "1 av 200 i mysterieboksen, bare under juleeventet", eventOver: "Juleeventet er over",
+    starsEarned: "+{n} julestjerner", elf: "Alv {n}",
+    fart: "Fjert", fartFlash: "Adrian fjertet! Alle i rommet holder seg for nesa og forteller sannheten.",
+    snowBtn: "Snøball", snowTitle: "Snøballkrig!", snowHelp: "Klikk på snøballen så fort du kan. Treffer du først, starter krigen. Den som treffer 3 ganger først, vinner.",
+    throwBtn: "Kast!", snowYou: "Du", snowWin: "Du vant snøballkrigen! +1 poeng", snowLose: "{name} vant snøballkrigen. Bedre lykke i neste sak!", snowBack: "Tilbake til saken",
+    giftBtn: "Gave ({n} igjen)", notCulprit: "Ikke tyven",
+    lbShards: "Snute shards", lbStars: "Julestjerner", colShards: "Shards", colStars: "Stjerner",
     leaders: "Leaderboard", lbPoints: "Flest poeng", lbEasy: "Raskest · Lett", lbHard: "Raskest · Vanskelig",
     lbLoading: "Henter leaderboarden...", lbError: "Fikk ikke kontakt med leaderboarden. Sjekk internett og prøv igjen.",
     lbEmpty: "Ingen her ennå. Fullfør en runde for å bli den første!", lbRetry: "Prøv igjen",
@@ -408,13 +460,13 @@ const TX = {
     godbit: "Gullgodbit", godbitDesc: "En hemmelig godbit. Den som spiser den får alt i spillet.", takeGodbit: "Spis godbiten",
     adminDone: "ADMIN! Du låste opp alle karakterene, også Markus, Jonas og Super-Snute.",
     charsTitle: "Karakterer", box: "Mysterieboks",
-    boxText: "Koster 2 poeng. Du kan vinne alle karakterer utenom Markus, Jonas og Snute. Klara er ekstra sjelden. Duplikater blir til 5 Snute shards.",
+    boxText: "Koster 2 poeng. Du kan vinne alle karakterer utenom Markus, Jonas og Snute. Adrian og Klara er ekstra sjeldne. Event-karakterer er de sjeldneste: 1 av 200, bare under et event. Duplikater blir til 5 Snute shards.",
     openBox: "Åpne for 2 poeng", notEnough: "Du trenger 2 poeng. Løs saker for å få flere.",
     boxGot: "Du fikk {name}!", boxDup: "Duplikat! {name} ble til 5 Snute shards.",
     snuteUnlocked: "Snute er låst opp! Voff!", superUnlocked: "SUPER-SNUTE! Nå kan Snute lukte hvor den skyldige gjemmer seg.",
     select: "Spill som", selected: "Spiller", locked: "Låst", secretLocked: "Låst. Ingen vet hvordan man får denne...", back: "Tilbake",
-    rar: { start: "Start", common: "Vanlig", rare: "Sjelden", legendary: "Legendarisk", mythic: "Mytisk", admin: "Admin", god: "Gud" },
-    perk: { start: "Ingen superkraft", common: "Ingen superkraft", rare: "+30 min hver sak", legendary: "Å snakke tar bare 5 min", mythic: "Å snakke tar bare 5 min", admin: "Å snakke tar bare 5 min", god: "Snakk 5 min, gå 2 min, og snus opp neste sted på sporet" },
+    rar: { start: "Start", common: "Vanlig", rare: "Sjelden", legendary: "Legendarisk", mythic: "Mytisk", event: "Event", admin: "Admin", god: "Gud" },
+    perk: { start: "Ingen superkraft", common: "Ingen superkraft", rare: "+30 min hver sak", legendary: "Å snakke tar bare 5 min", mythic: "Å snakke tar bare 5 min", event: "Å snakke tar bare 5 min", admin: "Å snakke tar bare 5 min", god: "Snakk 5 min, gå 2 min, og snus opp neste sted på sporet" },
     power: {
       rizz: "Rizz: alle du snakker med gir deg et ekstra hint.",
       class20: "+20 min når du går inn i et klasserom, opptil 3 ganger per sak.",
@@ -423,14 +475,21 @@ const TX = {
       shards2: "Doble Snute shards.",
       xray: "Røntgensyn, flyging og teleportering: se alle i alle rom, og det tar 0 min å flytte seg.",
       super: "Super-Snute: lukter hvor den skyldige gjemmer seg, helt fra starten.",
+      fart: "Fjert: én gang per sak sier alle i rommet et hint som garantert er sant.",
+      snow: "Snøballkrig: én gang per sak. Treff 3 ganger før motstanderen gjør det, og vinn 1 poeng.",
+      gifts: "Gaver: 3 per sak. Den som blir glad, forteller deg én mistenkt som IKKE er tyven.",
+      elves: "To alver: to figurer som går og snakker hver for seg, på tiden til én.",
+      notime: "Går aldri tom for tid.",
+      stars2: "Doble julestjerner.",
+      all: "Har alle kreftene i spillet, også event-kreftene.",
     },
     snuteNeed: "{n}/400 shards for å låse opp. Finn Snute på skolen, eller få duplikater fra bokser.",
     superNeed: "{n}/2000 shards for Super-Snute.", superDone: "Super-Snute! {n} shards.",
     sniff: "Snute lukter sporet her", superSniff: "Super-Snute lukter den skyldige her",
     rookie: "Ny detektiv",
-    roles: { cook: "Kokken", teacher: "Kontaktlæreren", substitute: "Vikaren", music: "Musikklæreren", science: "Naturfaglæreren", librarian: "Bibliotekaren", caretaker: "Vaktmesteren", secretary: "Skolesekretæren", firstgrader: "Førsteklassingen", second: "Andreklassingen", cleaner: "Renholderen", aide: "Miljøarbeideren", gymteacher: "Gymlæreren", captain: "Lagkapteinen", monitor: "Inspektøren" },
-    loc: { kantina: "Kantina", klasse1: "Klasserom 1", klasseC: "Klasserom C", instrument: "Musikkrommet", science: "Science lab", library: "Biblioteket", hallway: "Gangen", reception: "Resepsjonen", garderobe: "Garderoben", nedgarderobe: "Nede garderobe", toalett: "Toalettet", stillerom: "Stillerommet", gym: "Gymsalen", football: "Fotballbanen", playground: "Lekeplassen" },
-    riddle: { kantina: "rommet som lukter lunsj", klasse1: "klasserommet med et tall på døra", klasseC: "klasserommet med en bokstav på døra", instrument: "rommet fullt av trommer og gitarer", science: "rommet med reagensrør og vernebriller", library: "stedet der bøkene sover", hallway: "den lange gangen med alle skapene", reception: "skranken ved inngangsdøra", garderobe: "stedet der jakkene henger", nedgarderobe: "stedet der jakkene henger, ned trappa", toalett: "stedet du går når du virkelig må", stillerom: "rommet der du må hviske", gym: "rommet med tau som henger fra taket", football: "gresset med to mål", playground: "stedet med huskene" },
+    roles: { cook: "Kokken", teacher: "Kontaktlæreren", substitute: "Vikaren", music: "Musikklæreren", science: "Naturfaglæreren", librarian: "Bibliotekaren", caretaker: "Vaktmesteren", secretary: "Skolesekretæren", firstgrader: "Førsteklassingen", second: "Andreklassingen", cleaner: "Renholderen", aide: "Miljøarbeideren", gymteacher: "Gymlæreren", captain: "Lagkapteinen", monitor: "Inspektøren", snowman: "Snømannen", santa: "Julenissen", elves: "Alvene", rampenisse: "Rampenissen", juletre: "Juletreet" },
+    loc: { kantina: "Kantina", klasse1: "Klasserom A", klasseC: "Klasserom C", instrument: "Musikkrommet", science: "Science lab", library: "Biblioteket", hallway: "Gangen", reception: "Resepsjonen", garderobe: "Garderoben", nedgarderobe: "Nede garderobe", toalett: "Toalettet", stillerom: "Stillerommet", gym: "Gymsalen", football: "Fotballbanen", playground: "Lekeplassen" },
+    riddle: { kantina: "rommet som lukter lunsj", klasse1: "klasserommet som kommer først i alfabetet", klasseC: "klasserommet med den tredje bokstaven på døra", instrument: "rommet fullt av trommer og gitarer", science: "rommet med reagensrør og vernebriller", library: "stedet der bøkene sover", hallway: "den lange gangen med alle skapene", reception: "skranken ved inngangsdøra", garderobe: "stedet der jakkene henger", nedgarderobe: "stedet der jakkene henger, ned trappa", toalett: "stedet du går når du virkelig må", stillerom: "rommet der du må hviske", gym: "rommet med tau som henger fra taket", football: "gresset med to mål", playground: "stedet med huskene" },
     colors: { red: "rød", blue: "blå", green: "grønn", yellow: "gul", purple: "lilla", black: "svart", orange: "oransje", white: "hvit", grey: "grå" },
     accs: { sunglasses: "solbriller", headphones: "store hodetelefoner", scarf: "skjerf", backpack: "ryggsekk", skateboard: "skateboard" },
     shoes: { sneakers: "hvite joggesko", boots: "gule gummistøvler", sandals: "sandaler", cleats: "fotballsko", slippers: "rosa tøfler" },
@@ -466,6 +525,9 @@ const TX = {
       snute: "Voff! Snute logrer med halen og gir deg en Snute shard. Du har {n}.",
       snute2: "Voff! Snute gir deg 2 Snute shards (dobbelt, takket være Oscar HS). Du har {n}.",
       snuteGuilty: "Voff! (Snute har kakesmuler over hele snuten...)",
+      by: "{who}:",
+      gift: "{who} åpner gaven og smiler: «{name} gjorde det ikke!»",
+      giftNone: "Takk for gaven! Men jeg vet ingenting.",
     },
   },
 };
@@ -474,7 +536,7 @@ const TX = {
 // Characters that were renamed after the first release of v2.
 const RENAMED = { "Oscar-hs": "Oscar HS", "Ms Alen": "Ms Allan" };
 const STORE = "hvem-var-det-v2";
-let save = { points: 0, shards: 0, owned: ["rookie"], selected: "rookie", lang: "en", admin: false, superSeen: false, pid: "", name: "" };
+let save = { points: 0, shards: 0, owned: ["rookie"], selected: "rookie", lang: "en", admin: false, superSeen: false, pid: "", name: "", stars: 0 };
 try {
   const s = JSON.parse(localStorage.getItem(STORE));
   if (s) save = Object.assign(save, s);
@@ -512,6 +574,7 @@ function fill(s, p) {
     if (k === "loc") return locName(p.loc);
     if (k === "riddle") return T().riddle[p.loc];
     if (k === "name") return nameOf(p.name);
+    if (k === "who") return whoName(p.who);
     if (p[k] !== undefined) return p[k];
     return m;
   });
@@ -522,9 +585,11 @@ const tf = (k, p = {}) => fill(T()[k], p);
 const cur = () => ui.run && ui.run.c;
 const isHard = () => ui.run && ui.run.mode === "hard";
 const tier = () => rarityOf(save.selected);
-const power = () => save.selected === "Snute" ? (save.shards >= SNUTE_SUPER ? "super" : "snute") : POWER[save.selected];
-const talkCost = () => ["legendary", "mythic", "admin", "god"].includes(tier()) ? 5 : 10;
-const walkCost = () => power() === "xray" ? 0 : tier() === "god" ? 2 : 5;
+const powersOf = id => id === "Snute" ? [save.shards >= SNUTE_SUPER ? "super" : "snute"] : (POWERS[id] || []);
+const has = p => powersOf(save.selected).includes(p);
+const talkCost = () => ["legendary", "mythic", "event", "admin", "god"].includes(tier()) ? 5 : 10;
+const walkCost = () => has("xray") ? 0 : tier() === "god" ? 2 : 5;
+const whoName = pid => pid.startsWith("res:") ? nameOf(LOC[pid.slice(4)].res) : pid === "__dog" ? "Snute" : pid === "__fart" ? "💨" : nameOf(pid);
 const attrPart = (pre, k, v) => ({ k: pre + "_" + k, [FIELD[k]]: v });
 
 // ---------- drawing ----------
@@ -575,6 +640,7 @@ function figure(p) {
       <circle cx="32.5" cy="35.5" r="1.3" fill="#222"/><circle cx="38" cy="38.5" r="1.7" fill="#222"/>
       ${p.crown ? `<text x="31" y="28" font-size="10" text-anchor="middle">👑</text>` : ""}`;
   }
+  if (EVENT_FIG[p.kind]) return EVENT_FIG[p.kind](p);
   if (p.kind === "candy") {
     return `<circle cx="20" cy="42" r="16" fill="#ffc93c" opacity=".35"/><text x="20" y="52" font-size="26" text-anchor="middle">🍬</text>`;
   }
@@ -641,18 +707,62 @@ function figure(p) {
   if (p.badge) s += `<text x="33" y="9" font-size="10" text-anchor="middle">${p.badge}</text>`;
   return s;
 }
+const EYES2 = (y = 15.2) => `<circle cx="16.8" cy="${y}" r="1.3" fill="#222"/><circle cx="23.2" cy="${y}" r="1.3" fill="#222"/>`;
+const EVENT_FIG = {
+  snowman: () => `<circle cx="20" cy="49" r="11" fill="#fdfdfd" stroke="#0004" stroke-width=".8"/>
+    <circle cx="20" cy="32" r="8.5" fill="#fdfdfd" stroke="#0004" stroke-width=".8"/>
+    <circle cx="20" cy="18" r="7" fill="#fdfdfd" stroke="#0004" stroke-width=".8"/>
+    <path d="M12 31 L3 25 M28 31 L37 25" stroke="#6b4226" stroke-width="1.6" stroke-linecap="round"/>
+    <rect x="13.5" y="4" width="13" height="8" rx="1" fill="#222"/><rect x="10" y="11" width="20" height="2.6" rx="1.2" fill="#222"/>
+    ${EYES2(17)}<path d="M20 19 L27.5 20.3 L20 21.2Z" fill="#f77f00"/>
+    <rect x="12.5" y="24" width="15" height="3.6" rx="1.6" fill="#d62828"/><rect x="22" y="26" width="3.6" height="7" rx="1" fill="#d62828"/>
+    <circle cx="20" cy="32" r="1" fill="#222"/><circle cx="20" cy="36" r="1" fill="#222"/><circle cx="20" cy="47" r="1" fill="#222"/>`,
+  santa: () => `<rect x="13" y="43" width="6" height="13" fill="#b5121b"/><rect x="21" y="43" width="6" height="13" fill="#b5121b"/>
+    <ellipse cx="15" cy="58" rx="5.5" ry="3.2" fill="#111"/><ellipse cx="25" cy="58" rx="5.5" ry="3.2" fill="#111"/>
+    <path d="M6.5 33 Q6.5 22 20 22 Q33.5 22 33.5 33 V47 H6.5Z" fill="#d62828" stroke="#0005" stroke-width=".8"/>
+    <rect x="18.3" y="22.5" width="3.4" height="24.5" fill="#fff"/><rect x="6.5" y="37" width="27" height="3.6" fill="#111"/><rect x="17.8" y="36.4" width="4.4" height="4.8" rx=".6" fill="none" stroke="#f2c230" stroke-width="1.2"/>
+    <circle cx="20" cy="14" r="9" fill="#f6d6bf"/>
+    <path d="M11 15.5 Q11.5 28.5 20 29 Q28.5 28.5 29 15.5 Q24.5 20.5 20 19.5 Q15.5 20.5 11 15.5Z" fill="#fff" stroke="#0002" stroke-width=".5"/>
+    ${EYES2(13.8)}<circle cx="15" cy="17" r="1.6" fill="#f28b82" opacity=".6"/><circle cx="25" cy="17" r="1.6" fill="#f28b82" opacity=".6"/>
+    <path d="M10.5 10.5 Q13 1 23 1.5 Q31.5 2.5 34 9.5 L29.5 10.5Z" fill="#d62828"/><rect x="9.5" y="9" width="21" height="3.6" rx="1.8" fill="#fff"/><circle cx="34" cy="9.8" r="2.3" fill="#fff"/>`,
+  elf: () => `<rect x="13" y="43" width="6" height="13" fill="#d62828"/><rect x="21" y="43" width="6" height="13" fill="#d62828"/>
+    <path d="M13 46h6M13 50h6M13 54h6M21 46h6M21 50h6M21 54h6" stroke="#fff" stroke-width="1.6"/>
+    <path d="M9 56 Q15 55 20 57 Q16 61 10 60 Q7 58 9 56Z M31 56 Q25 55 20 57 Q24 61 30 60 Q33 58 31 56Z" fill="#1f7a3a"/>
+    <path d="M8 32 Q8 22 20 22 Q32 22 32 32 V46 L26 43 L20 46 L14 43 L8 46Z" fill="#2a9d4b" stroke="#0005" stroke-width=".8"/>
+    <rect x="8" y="36" width="24" height="3" fill="#5a3d22"/><circle cx="20" cy="27" r="1.3" fill="#f2c230"/>
+    <path d="M11.5 13 L4.5 9 L11.5 18Z M28.5 13 L35.5 9 L28.5 18Z" fill="#f6d6bf"/>
+    <circle cx="20" cy="14" r="9" fill="#f6d6bf"/>${EYES2()}<path d="M17.5 19 Q20 21 22.5 19" stroke="#0007" stroke-width=".9" fill="none"/>
+    <circle cx="14.5" cy="18" r="1.6" fill="#f28b82" opacity=".6"/><circle cx="25.5" cy="18" r="1.6" fill="#f28b82" opacity=".6"/>
+    <path d="M10.5 11.5 L21 0.5 L29.5 11.5Z" fill="#d62828"/><rect x="10" y="10" width="20" height="3" rx="1.5" fill="#1f7a3a"/><circle cx="21" cy="1.5" r="1.8" fill="#f2c230"/>`,
+  rampe: () => `<rect x="13" y="43" width="6" height="13" fill="#3d405b"/><rect x="21" y="43" width="6" height="13" fill="#3d405b"/>
+    <ellipse cx="15" cy="58" rx="5.5" ry="3.2" fill="#2b2b2b"/><ellipse cx="25" cy="58" rx="5.5" ry="3.2" fill="#2b2b2b"/>
+    <path d="M8 32 Q8 22 20 22 Q32 22 32 32 V46 H8Z" fill="#8d99ae" stroke="#0005" stroke-width=".8"/>
+    <path d="M8 30h24M8 34h24M8 38h24" stroke="#d62828" stroke-width="1.4" opacity=".8"/>
+    <circle cx="20" cy="14" r="9" fill="#f6d6bf"/>
+    <path d="M14.5 11.8 L18.5 13 M25.5 11.8 L21.5 13" stroke="#5a3a22" stroke-width="1.1" stroke-linecap="round"/>${EYES2()}
+    <path d="M15.5 18.6 Q20 23.5 24.5 18.6" stroke="#111" stroke-width="1.1" fill="#fff"/>
+    <circle cx="13.8" cy="18" r="1.8" fill="#f28b82" opacity=".7"/><circle cx="26.2" cy="18" r="1.8" fill="#f28b82" opacity=".7"/>
+    <path d="M10.5 12 Q11 1.5 21 1.5 Q32 2 35.5 16 Q31 10 28.5 12Z" fill="#d62828"/><circle cx="35.5" cy="16.5" r="2.2" fill="#fff"/>`,
+  tree: () => `<rect x="17" y="51" width="6" height="8" fill="#6b4226"/>
+    <path d="M20 4 L32 21 H26.5 L35 35 H28.5 L37.5 51 H2.5 L11.5 35 H5 L13.5 21 H8Z" fill="#1f7a3a" stroke="#0005" stroke-width=".8"/>
+    <circle cx="13" cy="44" r="1.8" fill="#d62828"/><circle cx="27" cy="46" r="1.8" fill="#f2c230"/><circle cx="24" cy="31" r="1.6" fill="#3e7bfa"/><circle cx="15" cy="29" r="1.6" fill="#f2c230"/><circle cx="31" cy="40" r="1.6" fill="#3e7bfa"/>
+    ${EYES2(23)}<path d="M17.5 26.5 Q20 28.5 22.5 26.5" stroke="#111" stroke-width=".9" fill="none"/>
+    <path d="M20 0 L21.2 3.2 L24.6 3.3 L21.9 5.4 L22.9 8.6 L20 6.7 L17.1 8.6 L18.1 5.4 L15.4 3.3 L18.8 3.2Z" fill="#f2c230" stroke="#b8860b" stroke-width=".4"/>`,
+};
 const figSvg = (p, w) => `<svg viewBox="0 0 40 64" width="${w}" height="${Math.round(w * 1.6)}" aria-hidden="true">${figure(p)}</svg>`;
 
 function specFor(id, c) {
   if (id === "Snute" || id === "__dog") return { kind: "dog", crown: id === "Snute" && save.shards >= SNUTE_SUPER && !c };
   if (id === "__godbit") return { kind: "candy" };
   if (id === "rookie") return { kind: "detective", name: "rookie" };
+  if (EVENT_KIND[id]) return { kind: EVENT_KIND[id], name: id };
   if (id.startsWith("res:")) id = LOC[id.slice(4)].res;
   if (ROLE_ICON[id]) return { kind: "adult", name: id, body: ROLE_BODY[hash(id) % 5], badge: ROLE_ICON[id] };
   if (c && c.outfits[id]) return { kind: "kid", name: id, o: c.outfits[id], unknown: !seen(c, id) };
   return { kind: "kid", name: id, o: sigOutfit(id) };
 }
-const playerSpec = () => save.selected === "Snute" ? { kind: "dog", crown: save.shards >= SNUTE_SUPER } : { kind: "detective", name: save.selected };
+const playerSpec = () => save.selected === "Snute" ? { kind: "dog", crown: save.shards >= SNUTE_SUPER }
+  : EVENT_KIND[save.selected] ? { kind: EVENT_KIND[save.selected], name: save.selected } : { kind: "detective", name: save.selected };
 
 function avatar(id, cls = "") {
   return `<div class="av r-${rarityOf(id)} ${cls}">${figSvg(specFor(id), cls === "lg" ? 52 : 34)}</div>`;
@@ -749,9 +859,10 @@ function newCase(id) {
     leftTo: {}, nextMove: hard ? 120 : Infinity,
     time: 0, limit: (hard ? 240 : 360) + (tier() === "rare" ? 30 : 0),
     loc: "reception", talked: {}, met: {}, mind: {}, mindUsed: false, notes: [], said: null,
-    secret: 0, godbit: false,
+    secret: 0, godbit: false, fartUsed: false, snowUsed: false, gifts: 0, cleared: {},
     seeds: Object.fromEntries([...SUSPECTS, ...LOCS].map(k => [k, rint(97)])),
   };
+  if (has("elves")) { c.locs = ["reception", "reception"]; c.elfT = [0, 0]; c.active = 0; }
   meet(c);
   return c;
 }
@@ -769,8 +880,8 @@ function trailLine(c, i) {
   return parts;
 }
 const truthRumor = (c, k) => c.culprit === "Snute" ? { k: "gossip_dog" } : attrPart("gossip", k, c.outfits[c.culprit][k]);
-const seen = (c, id) => !!(c.talked[id] || c.met[id] || power() === "xray");
-function meet(c) { if (power() === "friends") c.people[c.loc].forEach(n => c.met[n] = true); }
+const seen = (c, id) => !!(c.talked[id] || c.met[id] || has("xray"));
+function meet(c) { if (has("friends")) c.people[c.loc].forEach(n => c.met[n] = true); }
 
 // ---------- actions ----------
 function startRun(mode) {
@@ -780,18 +891,24 @@ function startRun(mode) {
   ui.screen = "intro"; ui.flash = null;
   render();
 }
-function spend(m) { cur().time += m; }
+// With two elves each elf has its own clock, and the case clock is the slower of the two.
+function spend(m, both) {
+  const c = cur();
+  if (c.elfT) { if (both) c.elfT = c.elfT.map(t => t + m); else c.elfT[c.active] += m; c.time = Math.max(...c.elfT); }
+  else c.time += m;
+}
+const elfAt = (c, l) => !!(c.locs && c.locs.includes(l));
 function after() { maybeMove(); checkTime(); }
 function checkTime() {
   const c = cur();
-  if (c.time >= c.limit) { ui.result = { ok: false, msg: "timeUp" }; ui.screen = "result"; }
+  if (c.time >= c.limit && !has("notime")) { ui.result = { ok: false, msg: "timeUp" }; ui.screen = "result"; }
 }
 function maybeMove() {
   const c = cur();
   while (c.time >= c.nextMove) {
     c.nextMove += 40;
-    if (c.loc === c.thiefAt) continue;
-    const from = c.thiefAt, to = pick(LOCS.filter(l => l !== from && l !== c.loc));
+    if (c.loc === c.thiefAt || elfAt(c, c.thiefAt)) continue;
+    const from = c.thiefAt, to = pick(LOCS.filter(l => l !== from && l !== c.loc && !elfAt(c, l)));
     c.people[from] = c.people[from].filter(n => n !== c.culprit);
     c.people[to].push(c.culprit);
     c.leftTo[from] = to;
@@ -809,7 +926,8 @@ function travel(loc) {
   spend(walkCost());
   if (c.talked.__dog) { delete c.talked.__dog; c.snute = Math.random() < 0.5 ? pick(LOCS.filter(l => l !== loc)) : null; }
   c.loc = loc; c.said = null;
-  if (power() === "class20" && CLASSROOMS.includes(loc) && (c.bonus20 || 0) < 3) {
+  if (c.locs) c.locs[c.active] = loc;
+  if (has("class20") && CLASSROOMS.includes(loc) && (c.bonus20 || 0) < 3) {
     c.bonus20 = (c.bonus20 || 0) + 1; c.limit += 20;
     ui.flash = { ok: true, msg: tf("bonus20", { n: c.bonus20 }) };
   }
@@ -825,7 +943,7 @@ function walkTo(loc) {
   const pts = route(c.loc, loc), segs = [];
   let total = 0;
   for (let i = 1; i < pts.length; i++) { const d = Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y); segs.push(d); total += d; }
-  const dur = Math.max(400, total / (power() === "xray" ? 2.4 : 0.85));
+  const dur = Math.max(400, total / (has("xray") ? 2.4 : 0.85));
   walking = true;
   el.closest("svg").classList.add("walking");
   const t0 = performance.now();
@@ -844,7 +962,7 @@ function talk(pid) {
   ui.flash = null;
   if (c.talked[pid]) { c.said = { pid, parts: c.talked[pid] }; render(); return; }
   spend(talkCost());
-  const rizz = power() === "rizz";
+  const rizz = has("rizz");
   let parts = [], tag = null;
   if (pid.startsWith("res:")) {
     const loc = pid.slice(4), i = c.trail.indexOf(loc);
@@ -854,7 +972,7 @@ function talk(pid) {
     if (rizz) { parts.push(truthRumor(c, KEYS[c.seeds[loc] % 3])); tag = tag || "?"; }
     if (!parts.length) parts = [{ k: "noinfo", i: c.seeds[loc] }];
   } else if (pid === "__dog") {
-    const n = power() === "shards2" ? 2 : 1;
+    const n = has("shards2") ? 2 : 1;
     save.shards += n;
     parts = [{ k: n === 2 ? "snute2" : "snute", n: save.shards }];
     checkSnute(); persist();
@@ -880,6 +998,12 @@ function accuse(name) {
     const last = ui.run.idx + 1 >= ui.run.ids.length;
     ui.run.total += c.time;
     ui.result = { ok: true, last };
+    if (eventOn()) {
+      const n = (isHard() ? 2 : 1) * (has("stars2") ? 2 : 1);
+      save.stars = (save.stars || 0) + n; persist();
+      ui.result.stars = n;
+    }
+    syncStats();
     if (last) {
       const n = isHard() ? 2 : 1;
       save.points += n; persist();
@@ -892,13 +1016,82 @@ function accuse(name) {
   } else if (isHard()) {
     ui.result = { ok: false, msg: "wrongHard", name }; ui.screen = "result";
   } else {
-    spend(30); ui.flash = { ok: false, msg: tf("wrongEasy", { name }) }; checkTime();
+    spend(30, true); ui.flash = { ok: false, msg: tf("wrongEasy", { name }) }; checkTime();
   }
+  render();
+}
+function switchElf(i) {
+  const c = cur();
+  if (!c.locs) return;
+  c.active = i; c.loc = c.locs[i]; c.said = null; ui.flash = null;
+  meet(c); render();
+}
+function fart() {
+  const c = cur();
+  if (!has("fart") || c.fartUsed) return;
+  c.fartUsed = true;
+  spend(10);
+  const ids = [`res:${c.loc}`, ...c.people[c.loc]];
+  const said = [];
+  ids.forEach((pid, i) => {
+    const parts = [{ k: "by", who: pid }, truthRumor(c, KEYS[i % 3])];
+    c.notes.push({ tag: "💨", parts });
+    said.push(...parts);
+  });
+  c.said = { pid: "__fart", parts: said };
+  ui.flash = { ok: true, msg: tf("fartFlash") };
+  after(); render();
+}
+function gift(pid) {
+  const c = cur();
+  if (!has("gifts") || c.gifts >= 3 || c.cleared["gift:" + pid]) return;
+  c.gifts++; c.cleared["gift:" + pid] = true;
+  spend(talkCost());
+  const open = SUSPECTS.filter(n => n !== c.culprit && n !== save.selected && !c.cleared[n]);
+  const near = open.filter(n => c.people[c.thiefAt].includes(n) || c.people[c.trail[4]].includes(n));
+  const name = near.length && Math.random() < 0.5 ? pick(near) : open.length ? pick(open) : null;
+  let parts;
+  if (name) { c.cleared[name] = true; parts = [{ k: "gift", who: pid, name }]; c.notes.push({ tag: "🎁", parts }); }
+  else parts = [{ k: "giftNone" }];
+  c.said = { pid, parts };
+  after(); render();
+}
+let snowTimer = null;
+function startSnow(target) {
+  const c = cur();
+  if (!has("snow") || c.snowUsed) return;
+  c.snowUsed = true;
+  spend(10); after();
+  if (ui.screen !== "game") { render(); return; }
+  ui.snow = { target, me: 0, them: 0, pos: [35, 50], done: null };
+  render();
+}
+function snowHit() {
+  const s = ui.snow;
+  if (!s || s.done) return;
+  s.me++;
+  s.pos = [12 + rint(76), 15 + rint(62)];
+  // The other side only starts throwing back once you have hit them.
+  if (s.me === 1) {
+    snowTimer = setInterval(() => {
+      const t = ui.snow;
+      if (!t || t.done) { clearInterval(snowTimer); return; }
+      t.them++;
+      if (t.them >= 3) endSnow(false); else render();
+    }, isHard() ? 800 : 1150);
+  }
+  if (s.me >= 3) endSnow(true); else render();
+}
+function endSnow(win) {
+  clearInterval(snowTimer);
+  const s = ui.snow;
+  s.done = win ? "win" : "lose";
+  if (win) { save.points += 1; persist(); }
   render();
 }
 function readMind(name) {
   const c = cur();
-  if (c.mindUsed || power() !== "mind") return;
+  if (c.mindUsed || !has("mind")) return;
   c.mindUsed = true;
   c.mind[name] = name === c.culprit;
   ui.flash = { ok: c.mind[name], msg: tf(c.mind[name] ? "mindGuilty" : "mindInnocent", { name }) };
@@ -928,8 +1121,10 @@ function nextCase() {
 function openBox() {
   if (save.points < BOX_COST) return;
   save.points -= BOX_COST;
+  // Event characters: 1 in 200, only while an event runs. Otherwise the usual odds.
   const roll = Math.random();
-  const t = roll < 0.5 ? "common" : roll < 0.8 ? "rare" : roll < 0.98 ? "legendary" : "mythic";
+  const t = eventOn() && Math.random() < 1 / 200 ? "event"
+    : roll < 0.5 ? "common" : roll < 0.8 ? "rare" : roll < 0.98 ? "legendary" : "mythic";
   const got = pick(CHARS.filter(c => c.r === t)).id;
   let msg;
   if (save.owned.includes(got)) {
@@ -964,14 +1159,20 @@ async function submitRun() {
   } catch (e) { res.lb = "error"; res.lbErr = e.message; }
   render();
 }
+async function syncStats() {
+  if (!lbOn() || !save.name) return;
+  try { await rpc("sync_stats", { p_id: save.pid, p_name: save.name, p_shards: save.shards, p_stars: save.stars || 0 }); } catch (e) {}
+}
 async function openLeaders() {
   ui.screen = "leaders"; ui.lb = { loading: true }; ui.lbTab = ui.lbTab || "points"; render();
   const fast = mode => `leaderboard_fastest?select=name,minutes,character&mode=eq.${mode}&order=minutes.asc,created_at.asc&limit=25`;
   try {
-    const [points, easy, hard] = await Promise.all([
+    const [points, easy, hard, shards, stars] = await Promise.all([
       lbGet("leaderboard_points?select=name,points&order=points.desc,updated_at.asc&limit=25"), lbGet(fast("easy")), lbGet(fast("hard")),
+      lbGet("leaderboard_shards?select=name,shards&order=shards.desc,updated_at.asc&limit=25"),
+      lbGet("leaderboard_stars?select=name,stars&order=stars.desc,updated_at.asc&limit=25"),
     ]);
-    ui.lb = { points, easy, hard };
+    ui.lb = { points, easy, hard, shards, stars };
   } catch (e) { ui.lb = { error: true }; }
   if (ui.screen === "leaders") render();
 }
@@ -979,6 +1180,7 @@ async function saveName(name) {
   const clean = name.replace(/\s+/g, " ").trim().slice(0, 16);
   if (clean.length < 2) return;
   save.name = clean; persist();
+  syncStats();
   if (ui.screen === "result") { submitRun(); return; }
   try { await rpc("set_name", { p_id: save.pid, p_name: clean }); } catch (e) {}
   openLeaders();
@@ -988,15 +1190,15 @@ async function saveName(name) {
 const langToggle = () => `<div class="lang" role="group" aria-label="Language">
   <button data-act="lang" data-v="en" aria-pressed="${save.lang === "en"}">EN</button>
   <button data-act="lang" data-v="no" aria-pressed="${save.lang === "no"}">NO</button></div>`;
-const stats = () => `<span class="stat" title="${T().points}">⭐ ${save.points}</span><span class="stat" title="${T().shards}">🐾 ${save.shards}</span>`;
+const stats = () => `<span class="stat" title="${T().points}">⭐ ${save.points}</span><span class="stat" title="${T().shards}">🐾 ${save.shards}</span>${eventOn() || save.stars ? `<span class="stat" title="${T().stars}">🌟 ${save.stars || 0}</span>` : ""}`;
 const topbar = (extra = "") => `<div class="topbar"><div class="brand">${esc(T().name.replace("?", ""))}<span>?</span><sup>2</sup></div>
   <div class="row">${extra}${stats()}${langToggle()}</div></div>`;
 const clock = m => { const t = 8 * 60 + m; return `${String(Math.floor(t / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`; };
 const dur = m => m % 60 ? tf("hoursMin", { h: Math.floor(m / 60), m: m % 60 }) : tf("hours", { h: m / 60 });
 const perkLines = id => {
   const L = T(), r = rarityOf(id);
-  const p = id === "Snute" ? "super" : POWER[id];
-  return `<div class="perk">${esc(L.perk[r])}</div>${p ? `<div class="power">⚡ ${esc(L.power[p])}</div>` : ""}`;
+  const ps = id === "Snute" ? ["super"] : POWERS[id] === ALL_POWERS ? ["all"] : (POWERS[id] || []);
+  return `<div class="perk">${esc(L.perk[r])}</div>${ps.map(p => `<div class="power">⚡ ${esc(L.power[p])}</div>`).join("")}`;
 };
 
 function lineupSvg() {
@@ -1017,6 +1219,7 @@ function homeView() {
     <h1>${esc(L.name.replace("?", ""))}<span>?</span></h1>
     <p class="tag">${esc(L.tagline)}</p>
   </section>
+  ${eventOn() ? `<div class="xmas">${esc(L.eventBanner)}</div>` : ""}
   <div class="lineup">${lineupSvg()}</div>
   <div class="modes">
     <button class="mode" data-act="start" data-v="easy"><span class="label">${L.play}</span><span class="big">${L.easy}</span><span>${esc(L.easyDesc)}</span><span class="pts">+1 ⭐</span></button>
@@ -1046,7 +1249,7 @@ function charsView() {
           ? `<div class="meter"><i style="width:${save.shards / SNUTE_SUPER * 100}%"></i></div><div class="perk">${tf("superNeed", { n: save.shards })}</div>`
           : `<div class="perk">👑 ${tf("superDone", { n: save.shards })}</div>`;
     }
-    const lockTxt = ch.r === "admin" ? L.secretLocked : L.locked;
+    const lockTxt = ch.r === "admin" ? L.secretLocked : ch.r === "event" ? (eventOn() ? L.eventLocked : L.eventOver) : L.locked;
     return `<div class="char ${sel ? "sel" : ""} ${own ? "" : "locked"}">
       <div class="row" style="flex-wrap:nowrap">${avatar(ch.id)}<div style="min-width:0">
         <div style="font-weight:700">${esc(nameOf(ch.id))}</div><div class="rar r-${ch.r}">${L.rar[ch.r]}</div></div></div>
@@ -1086,9 +1289,9 @@ function introView() {
 }
 
 function mapSvg(c) {
-  const L = T(), xray = power() === "xray";
-  const sniffLoc = power() === "snute" ? (c.trail.find((l, i) => i < 4 && !c.talked["res:" + l]) || c.thiefAt) : null;
-  const superLoc = power() === "super" ? c.thiefAt : null;
+  const L = T(), xray = has("xray");
+  const sniffLoc = has("snute") ? (c.trail.find((l, i) => i < 4 && !c.talked["res:" + l]) || c.thiefAt) : null;
+  const superLoc = has("super") ? c.thiefAt : null;
   let rooms = "", figs = "";
   LOCS.forEach(l => {
     const g = GEO[l], here = l === c.loc, hue = LOC[l].hue;
@@ -1107,7 +1310,7 @@ function mapSvg(c) {
       ${l === superLoc ? `<text class="paw" x="${g.x + g.w - 18}" y="${g.y + 26}"><title>${esc(L.superSniff)}</title>👑</text>` : ""}
     </g>`;
     const ids = [`res:${l}`];
-    if (here || xray) { ids.push(...c.people[l]); if (c.snute === l) ids.push("__dog"); }
+    if (here || xray || elfAt(c, l)) { ids.push(...c.people[l]); if (c.snute === l) ids.push("__dog"); }
     if (here && l === "gym" && c.godbit) ids.push("__godbit");
     crowdSpots(l, ids.length).forEach((p, i) => {
       const pid = ids[i], tk = here;
@@ -1123,13 +1326,21 @@ function mapSvg(c) {
   const doors = [...TOP, ...BOTTOM].map(l => `<rect class="door" x="${GEO[l].door.x - 16}" y="${GEO[l].door.y - 4}" width="32" height="8" rx="2"/>`).join("")
     + `<rect class="door" x="896" y="312" width="8" height="36" rx="2"/>`;
   const st = GEO[c.loc].stand;
+  let other = "";
+  if (c.locs) {
+    const ol = c.locs[1 - c.active], os = GEO[ol].stand, dx = ol === c.loc ? 30 : 0;
+    other = `<g id="player2" transform="${figAt(os.x + dx, os.y)}" opacity=".75" pointer-events="none">
+      <ellipse cx="20" cy="61" rx="15" ry="4.5" fill="var(--muted)" opacity=".6"/>${figure(playerSpec())}
+      <text x="20" y="-2" text-anchor="middle" font-size="11" font-weight="800" fill="var(--ink)">${2 - c.active}</text></g>`;
+  }
   return `<svg class="schoolmap" viewBox="0 0 1200 680" role="group" aria-label="${esc(L.mapHint)}">
     <rect class="wall" x="10" y="10" width="900" height="660" rx="16"/>
     ${rooms}${doors}
     <path d="M900 330 L918 340 L1055 340" stroke="var(--muted)" stroke-width="10" stroke-linecap="round" stroke-dasharray="2 14" fill="none" pointer-events="none"/>
-    ${figs}
+    ${figs}${other}
     <g id="player" transform="${figAt(st.x, st.y)}" pointer-events="none"><g class="bob">
-      <ellipse cx="20" cy="61" rx="15" ry="4.5" fill="var(--marker)" opacity=".85"/>${figure(playerSpec())}</g></g>
+      <ellipse cx="20" cy="61" rx="15" ry="4.5" fill="var(--marker)" opacity=".85"/>${figure(playerSpec())}
+      ${c.locs ? `<text x="20" y="-2" text-anchor="middle" font-size="11" font-weight="800" fill="var(--ink)">${c.active + 1}</text>` : ""}</g></g>
   </svg>`;
 }
 
@@ -1150,9 +1361,14 @@ function personCard(c, pid) {
         ? `<div class="tags"><span class="t"><i class="sw" style="background:${HEX[o.c]}"></i>${esc(L.colors[o.c])}</span><span class="t">${esc(L.accs[o.a])}</span><span class="t">${esc(L.shoes[o.s])}</span></div>`
         : `<div class="tags"><span class="t">? ${esc(L.unknownLook)}</span></div>`;
     }
+    if (c.cleared[pid]) tags += `<div class="tags"><span class="t innocent">🎁 ${L.notCulprit}</span></div>`;
     if (pid in c.mind) tags += `<div class="tags"><span class="t ${c.mind[pid] ? "guilty" : "innocent"}">🔮 ${c.mind[pid] ? L.guilty : L.innocent}</span></div>`;
     if (seen(c, pid) || (pid === "Snute" && talked)) acts += `<button class="btn small danger" data-act="accuse" data-v="${esc(pid)}">${L.accuse}</button>`;
-    if (power() === "mind" && !c.mindUsed) acts += `<button class="btn small magic" data-act="mind" data-v="${esc(pid)}">🔮 ${L.readMind}</button>`;
+    if (has("mind") && !c.mindUsed) acts += `<button class="btn small magic" data-act="mind" data-v="${esc(pid)}">🔮 ${L.readMind}</button>`;
+  }
+  if (pid !== "__dog") {
+    if (has("snow") && !c.snowUsed) acts += `<button class="btn small" data-act="snow" data-v="${esc(pid)}">❄️ ${L.snowBtn} · 10 min</button>`;
+    if (has("gifts") && c.gifts < 3 && !c.cleared["gift:" + pid]) acts += `<button class="btn small" data-act="gift" data-v="${esc(pid)}">🎁 ${tf("giftBtn", { n: 3 - c.gifts })}</button>`;
   }
   return `<div class="person ${active ? "active" : ""}">
     <div class="figbox">${figSvg(specFor(pid, c), 34)}</div>
@@ -1167,7 +1383,8 @@ function gameView() {
   const here = [`res:${c.loc}`, ...c.people[c.loc]];
   if (c.snute === c.loc) here.push("__dog");
   if (c.loc === "gym" && c.godbit) here.push("__godbit");
-  const speaker = c.said ? (c.said.pid.startsWith("res:") ? nameOf(LOC[c.said.pid.slice(4)].res) : c.said.pid === "__dog" ? "Snute" : c.said.pid) : "";
+  const speaker = c.said ? whoName(c.said.pid) : "";
+  const endless = has("notime");
   const notes = c.notes.length
     ? c.notes.map(n => `<div class="note"><b>${esc(n.tag)}</b><div>${n.parts.map(x => esc(line(x))).join(" ")}</div></div>`).join("")
     : `<p class="perk" style="font-family:var(--f-body)">${esc(L.noHints)} <b>${esc(locName(c.trail[0]))}</b></p>`;
@@ -1176,9 +1393,10 @@ function gameView() {
     <div class="spread">
       <div><span class="label">${tf("caseN", { n: ui.run.idx + 1, m: ui.run.ids.length })} · ${isHard() ? L.hard : L.easy}</span>
         <h2>${CASES[c.id]} ${esc(L.cases[c.id].title)}</h2></div>
-      <div class="row">${avatar(save.selected)}<div style="text-align:right"><div class="clock">${clock(c.time)}</div><div class="perk">${dur(Math.max(0, left))} ${L.left}</div></div></div>
+      <div class="row">${avatar(save.selected)}<div style="text-align:right"><div class="clock">${clock(c.time)}</div><div class="perk">${endless ? "∞" : dur(Math.max(0, left))} ${L.left}</div></div></div>
     </div>
-    <div class="timebar ${pct < 25 ? "low" : ""}" role="progressbar" aria-valuemin="0" aria-valuemax="${c.limit}" aria-valuenow="${Math.max(0, left)}"><i style="width:${pct}%"></i></div>
+    <div class="timebar ${pct < 25 && !endless ? "low" : ""}" role="progressbar" aria-valuemin="0" aria-valuemax="${c.limit}" aria-valuenow="${Math.max(0, left)}"><i style="width:${endless ? 100 : pct}%"></i></div>
+    ${c.locs ? `<div class="elves">${[0, 1].map(i => `<button class="btn small" data-act="elf" data-v="${i}" aria-pressed="${c.active === i}">🧝 ${tf("elf", { n: i + 1 })} · ${esc(locName(c.locs[i]))}</button>`).join("")}</div>` : ""}
   </div>
   ${ui.flash ? `<div class="flash ${ui.flash.ok ? "ok" : ui.flash.info ? "info" : ""}">${esc(ui.flash.msg)}</div>` : ""}
   <div class="board">
@@ -1193,9 +1411,29 @@ function gameView() {
       <div class="panel" style="display:grid;gap:12px">
         <div class="roomhead"><div class="roomicon" aria-hidden="true">${LOC[c.loc].icon}</div>
           <div><span class="label">${L.youAreIn}</span><h2>${esc(locName(c.loc))}</h2></div></div>
+        ${has("fart") && !c.fartUsed ? `<div><button class="btn small" data-act="fart">💨 ${L.fart} · 10 min</button></div>` : ""}
         <div class="people">${here.map(p => personCard(c, p)).join("")}</div>
       </div>
       <div class="panel"><h3>📓 ${L.notebook}</h3><div class="notes">${notes}</div></div>
+    </div>
+  </div>${ui.snow ? snowView() : ""}`;
+}
+
+function snowView() {
+  const L = T(), s = ui.snow, foe = whoName(s.target);
+  const inner = s.done
+    ? `<div class="snowdone"><h2>${s.done === "win" ? "🏆" : "❄️"}</h2><p style="font-size:1.1rem;font-weight:700">${esc(s.done === "win" ? L.snowWin : tf("snowLose", { name: foe }))}</p>
+        <div><button class="btn primary" data-act="snowclose">${L.snowBack}</button></div></div>`
+    : `<button class="snowball" data-act="snowhit" style="left:${s.pos[0]}%;top:${s.pos[1]}%">❄️ ${L.throwBtn}</button>`;
+  return `<div class="snowwrap" role="dialog" aria-modal="true" aria-label="${esc(L.snowTitle)}">
+    <div class="panel snowbox">
+      <h2>❄️ ${L.snowTitle}</h2><p class="perk">${esc(L.snowHelp)}</p>
+      <div class="row"><span class="stat">${L.snowYou}: ${"❄️".repeat(s.me)}${"·".repeat(3 - s.me)}</span><span class="stat">${esc(foe)}: ${"❄️".repeat(s.them)}${"·".repeat(3 - s.them)}</span></div>
+      <div class="arena">
+        <div class="meimg">${figSvg(playerSpec(), 46)}</div>
+        <div class="foe">${figSvg(specFor(s.target, cur()), 46)}</div>
+        ${inner}
+      </div>
     </div>
   </div>`;
 }
@@ -1219,7 +1457,7 @@ function lbResult(r) {
 
 function leadersView() {
   const L = T(), lb = ui.lb || {}, tab = ui.lbTab;
-  const tabs = [["points", L.lbPoints], ["easy", L.lbEasy], ["hard", L.lbHard]].map(([k, label]) =>
+  const tabs = [["points", L.lbPoints], ["easy", L.lbEasy], ["hard", L.lbHard], ["shards", L.lbShards], ["stars", L.lbStars]].map(([k, label]) =>
     `<button class="tab" role="tab" aria-selected="${tab === k}" data-act="lbtab" data-v="${k}">${label}</button>`).join("");
   let body;
   if (lb.loading) body = `<p class="perk">${L.lbLoading}</p>`;
@@ -1228,12 +1466,13 @@ function leadersView() {
     const rows = lb[tab] || [];
     if (!rows.length) body = `<p class="perk">${esc(L.lbEmpty)}</p>`;
     else {
-      const head = tab === "points" ? `<th>${L.colPoints}</th>` : `<th>${L.colTime}</th><th>${L.colChar}</th>`;
+      const COUNT = { points: ["points", "⭐", L.colPoints], shards: ["shards", "🐾", L.colShards], stars: ["stars", "🌟", L.colStars] }[tab];
+      const head = COUNT ? `<th>${COUNT[2]}</th>` : `<th>${L.colTime}</th><th>${L.colChar}</th>`;
       body = `<div class="tablewrap"><table class="lbtable"><thead><tr><th>#</th><th>${L.colName}</th>${head}</tr></thead><tbody>${rows.map((x, i) => {
         const me = save.name && x.name === save.name;
-        const cells = tab === "points" ? `<td class="num">⭐ ${x.points}</td>` : `<td class="num">${esc(dur(x.minutes))}</td><td>${esc(x.character ? nameOf(x.character) : "")}</td>`;
+        const cells = COUNT ? `<td class="num">${COUNT[1]} ${x[COUNT[0]]}</td>` : `<td class="num">${esc(dur(x.minutes))}</td><td>${esc(x.character ? nameOf(x.character) : "")}</td>`;
         return `<tr class="${me ? "mine" : ""}"><td class="num">${i < 3 ? ["🥇", "🥈", "🥉"][i] : i + 1}</td><td>${esc(x.name)}${me ? ` <span class="label">(${L.lbYou})</span>` : ""}</td>${cells}</tr>`;
-      }).join("")}</tbody></table></div>${tab === "points" ? "" : `<p class="perk">${esc(L.lbFastNote)}</p>`}`;
+      }).join("")}</tbody></table></div>${COUNT ? "" : `<p class="perk">${esc(L.lbFastNote)}</p>`}`;
     }
   }
   return `${topbar(`<button class="btn small" data-act="home">← ${L.back}</button>`)}
@@ -1252,6 +1491,7 @@ function resultView() {
     const win = c.culprit === "Snute" ? L.snuteWin : fill(L.cases[c.id].win, { name: c.culprit });
     body = `<span class="stamp">${L.solved}</span>
       <div class="me"><div class="av lg r-${rarityOf(c.culprit)}">${figSvg(c.culprit === "Snute" ? { kind: "dog" } : { kind: "kid", name: c.culprit, o: c.outfits[c.culprit] }, 52)}</div><p style="font-size:1.15rem">${esc(win)}</p></div>
+      ${r.stars ? `<p class="stat">🌟 ${esc(tf("starsEarned", { n: r.stars }))}</p>` : ""}
       ${r.last ? `<h2>${L.runDone}</h2><p style="font-size:1.1rem">⭐ ${r.earned === 1 ? L.earned1 : tf("earnedN", { n: r.earned })} · ⏱ ${esc(tf("playTime", { t: dur(r.minutes) }))}</p>
         ${lbResult(r)}
         <div class="row"><button class="btn primary" data-act="start" data-v="${ui.run.mode}">${L.retry}</button><button class="btn" data-act="chars">🎁 ${L.box}</button><button class="btn" data-act="home">${L.home}</button></div>`
@@ -1290,12 +1530,19 @@ function act(el) {
     case "leaders": openLeaders(); break;
     case "lbtab": ui.lbTab = v; render(); break;
     case "lbsubmit": submitRun(); break;
+    case "elf": switchElf(+v); break;
+    case "fart": fart(); break;
+    case "gift": gift(v); break;
+    case "snow": startSnow(v); break;
+    case "snowhit": snowHit(); break;
+    case "snowclose": ui.snow = null; render(); break;
   }
   if (["go", "next", "start"].includes(el.dataset.act)) window.scrollTo({ top: 0, behavior: "smooth" });
 }
 app.addEventListener("click", e => {
   const el = e.target.closest("[data-act]");
   if (!el || el.disabled || walking) return;
+  if (ui.snow && !["snowhit", "snowclose", "lang"].includes(el.dataset.act)) return;
   act(el);
 });
 app.addEventListener("submit", e => {
@@ -1306,7 +1553,7 @@ app.addEventListener("submit", e => {
 app.addEventListener("keydown", e => {
   if (e.key !== "Enter" && e.key !== " ") return;
   const el = e.target.closest && e.target.closest(".rm[data-act]");
-  if (!el || walking) return;
+  if (!el || walking || ui.snow) return;
   e.preventDefault();
   act(el);
 });
